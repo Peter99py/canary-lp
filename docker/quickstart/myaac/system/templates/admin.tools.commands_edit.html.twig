@@ -1,0 +1,30 @@
+<div class="card card-info card-outline">
+	<div class="card-header">
+		<h5 class="m-0">Edit Command</h5>
+	</div>
+	<form method="post" action="{{ constant('ADMIN_URL') }}?p=commands_edit&id={{ cmd.id }}">
+		{{ csrf() }}
+		<div class="card-body">
+			<div class="form-group">
+				<label>Words (command)</label>
+				<input type="text" name="words" class="form-control" value="{{ cmd.words }}" required>
+			</div>
+			<div class="form-group">
+				<label>Description</label>
+				<textarea name="description" class="form-control" rows="3" required>{{ cmd.description }}</textarea>
+			</div>
+			<div class="form-group">
+				<label>Group (who can use)</label>
+				<select name="group_type" class="form-control">
+					<option value="God" {% if cmd.group_type == 'God' %}selected{% endif %}>God (Admin only)</option>
+					<option value="GM" {% if cmd.group_type == 'GM' %}selected{% endif %}>GM</option>
+					<option value="Player" {% if cmd.group_type == 'Player' %}selected{% endif %}>Player</option>
+				</select>
+			</div>
+		</div>
+		<div class="card-footer">
+			<button type="submit" name="save" class="btn btn-info">Save</button>
+			<a href="{{ constant('ADMIN_URL') }}?p=commands" class="btn btn-danger float-right">Back</a>
+		</div>
+	</form>
+</div>

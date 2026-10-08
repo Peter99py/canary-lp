@@ -882,3 +882,14 @@ INSERT INTO `players`
 (5, 'Knight Sample', 1, 1, 8, 4, 185, 185, 4200, 113, 115, 95, 39, 129, 0, 90, 90, 0, 8, '', 470, 1, 10, 0, 10, 0, 10, 0, 10, 0),
 (6, 'Monk Sample', 1, 1, 8, 9, 185, 185, 4200, 113, 115, 95, 39, 129, 0, 90, 90, 0, 8, '', 470, 1, 10, 0, 10, 0, 10, 0, 10, 0),
 (7, 'GOD', 6, 1, 2, 0, 155, 155, 100, 113, 115, 95, 39, 75, 0, 60, 60, 0, 8, '', 410, 1, 10, 0, 10, 0, 10, 0, 10, 0);
+
+-- Table structure `commands`
+CREATE TABLE IF NOT EXISTS `commands` (
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `words` varchar(255) NOT NULL DEFAULT '',
+    `description` text NOT NULL DEFAULT '',
+    `group_type` enum('Player','GM','God') NOT NULL DEFAULT 'God',
+    `hide` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `words` (`words`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

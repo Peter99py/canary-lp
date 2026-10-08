@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env sh
+set -e
 
 : "${CANARY_DB_HOST:=db}"
 : "${CANARY_DB_PORT:=3306}"
@@ -8,7 +8,6 @@ set -euo pipefail
 : "${CANARY_DB_PASSWORD:=canary}"
 : "${CANARY_SERVER_NAME:=OpenTibiaBR Canary}"
 : "${CANARY_SERVER_IP:=127.0.0.1}"
-: "${CANARY_SERVER_LOCATION:=BRA}"
 : "${CANARY_LOGIN_PORT:=7171}"
 : "${CANARY_GAME_PORT:=7172}"
 : "${CANARY_STATUS_PORT:=7173}"
@@ -16,16 +15,15 @@ set -euo pipefail
 : "${CANARY_DATA_PACK:=data-otservbr-global}"
 
 escape_lua() {
-	printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+    printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
 }
 
 require_uint() {
-	local name="$1"
-	local value="$2"
-	if [[ ! "$value" =~ ^[0-9]+$ ]]; then
-		echo "Invalid ${name}: '${value}'. Use only unsigned integer values." >&2
-		exit 1
-	fi
+    name="$1"
+    value="$2"
+    case "$value" in
+        ''|*[!0-9]*) echo "Invalid ${name}: '${value}'. Use only unsigned integer values." >&2; exit 1 ;;
+    esac
 }
 
 require_uint "CANARY_DB_PORT" "$CANARY_DB_PORT"
@@ -34,6 +32,8 @@ require_uint "CANARY_GAME_PORT" "$CANARY_GAME_PORT"
 require_uint "CANARY_STATUS_PORT" "$CANARY_STATUS_PORT"
 require_uint "CANARY_STATUS_TIMEOUT" "$CANARY_STATUS_TIMEOUT"
 
+# MyAAC lê a config do servidor em $server_path (default /canary/).
+# Geramos uma cópia a partir das mesmas variáveis de ambiente do compose.
 mkdir -p /canary/data/XML
 cat > /canary/config.lua <<EOF
 serverName = "$(escape_lua "$CANARY_SERVER_NAME")"
@@ -75,7 +75,19 @@ cat > /canary/data/XML/groups.xml <<'EOF'
 </groups>
 EOF
 
-php /usr/local/bin/myaac-bootstrap.php
-chown -R www-data:www-data /var/www/html/config.local.php /var/www/html/system/cache /var/www/html/system/logs /var/www/html/system/php_sessions
+# Diretórios graváveis pelo worker do php-fpm (www-data).
+mkdir -p \
+    /var/www/html/system/php_sessions \
+    /var/www/html/system/cache \
+    /var/www/html/system/logs
+
+# Escreve config.local.php e importa o schema (depende de env de runtime).
+php /var/www/html/bootstrap.php
+
+chown -R www-data:www-data \
+    /var/www/html/config.local.php \
+    /var/www/html/system/php_sessions \
+    /var/www/html/system/cache \
+    /var/www/html/system/logs
 
 exec "$@"

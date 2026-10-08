@@ -266,6 +266,192 @@ function ensure_canary_myaac_columns(PDO $pdo): void
 	}
 }
 
+function ensure_commands_table(PDO $pdo): void
+{
+	$pdo->exec(
+		'CREATE TABLE IF NOT EXISTS `commands` ('
+		. '`id` INT(11) NOT NULL AUTO_INCREMENT,'
+		. '`words` VARCHAR(255) NOT NULL,'
+		. '`description` VARCHAR(255) NOT NULL DEFAULT \'\','
+		. '`group_type` ENUM(\'Player\',\'GM\',\'God\') NOT NULL DEFAULT \'God\','
+		. '`hide` TINYINT(1) NOT NULL DEFAULT 0,'
+		. 'PRIMARY KEY (`id`)'
+		. ') ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4'
+	);
+
+	$seeded = $pdo->prepare('SELECT `value` FROM myaac_config WHERE `name` = ? LIMIT 1');
+	$seeded->execute(['commands_seeded']);
+	if ($seeded->fetchColumn() !== false) {
+		return;
+	}
+
+	$commands = [
+		// God
+		['!testcontainer', 'Inspects your backpack container (test).', 'God'],
+		['/addachievement', 'Gives an achievement to a player.', 'God'],
+		['/addaddon', 'Adds an outfit addon to a player.', 'God'],
+		['/addbadge', 'Adds a badge to a player.', 'God'],
+		['/addbosskill', 'Adds a boss kill to a player bosstiary.', 'God'],
+		['/addcharms', 'Adds charm points to a player.', 'God'],
+		['/adddustlevel', 'Adds forge dust level to a player.', 'God'],
+		['/adddusts', 'Adds forge dusts to a player.', 'God'],
+		['/addloot', 'Adds an item to your Loot Pouch.', 'God'],
+		['/addminorcharms', 'Adds minor charm points to a player.', 'God'],
+		['/addmoney', 'Adds money to a player.', 'God'],
+		['/addmount', 'Adds a mount to a player.', 'God'],
+		['/addreward', 'Adds an item to a reward chest.', 'God'],
+		['/addskill', 'Adds skill levels to a player.', 'God'],
+		['/addtitle', 'Adds a title to a player.', 'God'],
+		['/addtutor', 'Promotes a player to tutor.', 'God'],
+		['/areasound', 'Plays a sound in an area.', 'God'],
+		['/attr', 'Sets attributes on an item, creature, or player.', 'God'],
+		['/bakragoreicon', 'Gives the Bakragore icon.', 'God'],
+		['/bountypoints', 'Reads or adjusts a player bounty points.', 'God'],
+		['/changeflowmap', 'Changes the Soul War flow map.', 'God'],
+		['/charmexpansion', 'Grants charm expansion to a player.', 'God'],
+		['/charmrunes', 'Unlocks all charm runes for a player.', 'God'],
+		['/checkachievements', 'Lists a player achievements.', 'God'],
+		['/clearcooldown', 'Clears a boss cooldown for a player.', 'God'],
+		['/clearhirelingstas', 'Clears hireling stats.', 'God'],
+		['/clearloot', 'Removes all items from your Loot Pouch.', 'God'],
+		['/closeserver', 'Closes, saves, or shuts down the server.', 'God'],
+		['/countloot', 'Counts the items in your Loot Pouch.', 'God'],
+		['/createloot', 'Fills your Loot Pouch with random test items.', 'God'],
+		['/createtestshop', 'Fills your Loot Pouch with shop test items.', 'God'],
+		['/fiendish', 'Teleports to a fiendish monster.', 'God'],
+		['/forceperiod', 'Forces the world light period.', 'God'],
+		['/getallkv', 'Lists all key-value entries.', 'God'],
+		['/getdusts', 'Shows a player forge dusts.', 'God'],
+		['/getkv', 'Reads a key-value entry.', 'God'],
+		['/globalsound', 'Plays a global sound.', 'God'],
+		['/gotohouse', 'Teleports to a house.', 'God'],
+		['/hasflag', 'Checks if a player has a flag.', 'God'],
+		['/hireling', 'Creates a hireling lamp.', 'God'],
+		['/i', 'Creates an item.', 'God'],
+		['/inbox', 'Sends an item to a player inbox.', 'God'],
+		['/influenced', 'Teleports to an influenced monster.', 'God'],
+		['/internalsound', 'Plays an internal sound.', 'God'],
+		['/ipban', 'Bans an IP address.', 'God'],
+		['/listraid', 'Lists the available raids.', 'God'],
+		['/m', 'Creates monsters around you.', 'God'],
+		['/n', 'Creates an NPC.', 'God'],
+		['/openforge', 'Opens the forge for a player.', 'God'],
+		['/openserver', 'Opens the server for logins.', 'God'],
+		['/owner', 'Sets or clears the owner of a house.', 'God'],
+		['/playericon', 'Manages player icons.', 'God'],
+		['/probeopcode', 'Probes a client protocol opcode.', 'God'],
+		['/proficiency', 'Adds weapon experience to your equipped weapon.', 'God'],
+		['/protocolprobe', 'Probes a client protocol message.', 'God'],
+		['/r', 'Removes items from the map.', 'God'],
+		['/raid', 'Starts a raid by name.', 'God'],
+		['/reload', 'Reloads server configuration or data (param: all, items, monsters, ...).', 'God'],
+		['/removeachievement', 'Removes an achievement from a player.', 'God'],
+		['/removedusts', 'Removes forge dusts from a player.', 'God'],
+		['/removeflag', 'Removes a flag from a player.', 'God'],
+		['/removetaint', 'Removes a player taint state.', 'God'],
+		['/removetutor', 'Removes tutor status from a player.', 'God'],
+		['/resetcd', 'Resets cooldowns for a player.', 'God'],
+		['/resetcharms', 'Resets a player charms.', 'God'],
+		['/s', 'Creates a summon.', 'God'],
+		['/save', 'Saves the current server state.', 'God'],
+		['/setbestiary', 'Sets bestiary progress for a creature.', 'God'],
+		['/setdusts', 'Sets a player forge dusts.', 'God'],
+		['/setfiendish', 'Sets a new fiendish monster.', 'God'],
+		['/setflag', 'Grants a flag to a player.', 'God'],
+		['/setkv', 'Sets a key-value entry.', 'God'],
+		['/setmonstername', 'Renames a monster.', 'God'],
+		['/setstorage', 'Sets a player storage value.', 'God'],
+		['/settaint', 'Sets a player taint state.', 'God'],
+		['/settitle', 'Sets a player active title.', 'God'],
+		['/simraid', 'Simulates a raid without running it.', 'God'],
+		['/soulseals', 'Reads or adjusts a player soulseals.', 'God'],
+		['/spawn', 'Creates a monster spawn.', 'God'],
+		['/taskboarddelivery', 'Delivers a task board reward.', 'God'],
+		['/taskpoints', 'Reads or adjusts a player task points.', 'God'],
+		['/taskslot', 'Manages task board slots.', 'God'],
+		['/testicon', 'Tests player icons.', 'God'],
+		['/testlog', 'Writes a test log entry.', 'God'],
+		['/testmessage', 'Sends a test message.', 'God'],
+		['/testtaintconditions', 'Sets the taint icon on yourself.', 'God'],
+		['/vip', 'Manages a player\'s VIP days.', 'God'],
+		['/zones', 'Manages zones.', 'God'],
+		// GM
+		['!pos', 'Shows your position or teleports to a position.', 'GM'],
+		['!position', 'Shows your current position.', 'GM'],
+		['/a', 'Teleports N tiles in the direction you face.', 'GM'],
+		['/active', 'Teleports to an active player.', 'GM'],
+		['/afk', 'Toggles AFK status.', 'GM'],
+		['/ambientsound', 'Plays an ambient sound.', 'GM'],
+		['/b', 'Broadcasts a message.', 'GM'],
+		['/ban', 'Bans a player or account.', 'GM'],
+		['/bless', 'Shows your blessing status.', 'GM'],
+		['/c', 'Moves a creature to a free tile near you.', 'GM'],
+		['/clean', 'Cleans items from the floor.', 'GM'],
+		['/countmonsters', 'Counts monsters from the spawn file.', 'GM'],
+		['/distanceeffect', 'Plays a distance effect.', 'GM'],
+		['/down', 'Moves down a floor.', 'GM'],
+		['/effect', 'Plays a magic effect.', 'GM'],
+		['/getlook', 'Shows a creature\'s outfit XML.', 'GM'],
+		['/getstorage', 'Reads a player storage value.', 'GM'],
+		['/ghost', 'Toggles ghost mode.', 'GM'],
+		['/goldrank', 'Shows the gold highscore.', 'GM'],
+		['/goto', 'Teleports to a creature.', 'GM'],
+		['/info', 'Shows player info.', 'GM'],
+		['/kick', 'Kicks a player.', 'GM'],
+		['/listplayers', 'Lists active players to teleport to.', 'GM'],
+		['/looktype', 'Sets your outfit look type.', 'GM'],
+		['/mc', 'Checks for multi-client.', 'GM'],
+		['/musicsound', 'Plays a music sound.', 'GM'],
+		['/namelock', 'Name-locks a player.', 'GM'],
+		['/pos', 'Shows your position or teleports to a position.', 'GM'],
+		['/rewardbag', 'Simulates opening a reward bag (test).', 'GM'],
+		['/setlight', 'Sets the light level.', 'GM'],
+		['/spy', 'Shows a player\'s equipment.', 'GM'],
+		['/t', 'Teleports you or a player to the temple.', 'GM'],
+		['/teleport', 'Creates a teleport to a destination position.', 'GM'],
+		['/town', 'Teleports to a town.', 'GM'],
+		['/tp', 'Creates a teleport to a destination position.', 'GM'],
+		['/unban', 'Unbans a player or account.', 'GM'],
+		['/up', 'Moves up a floor.', 'GM'],
+		// Player
+		['!aol', 'Buys an amulet of loss.', 'Player'],
+		['!autoloot', 'Sets auto loot mode (all/on/off).', 'Player'],
+		['!balance', 'Shows your bank balance.', 'Player'],
+		['!bless', 'Buys all blessings.', 'Player'],
+		['!buyhouse', 'Buys a house.', 'Player'],
+		['!checktaint', 'Shows your taint state.', 'Player'],
+		['!checkvip', 'Shows your VIP status.', 'Player'],
+		['!commands', 'Lists the available commands.', 'Player'],
+		['!deposit', 'Deposits money in the bank.', 'Player'],
+		['!emote', 'Toggles emote spells (on/off).', 'Player'],
+		['!flask', 'Toggles whether you receive flasks (on/off).', 'Player'],
+		['!hiddenshop', 'Toggles hidden sell shop items (on/off).', 'Player'],
+		['!leavehouse', 'Leaves a house.', 'Player'],
+		['!livestream', 'Manages the livestream system.', 'Player'],
+		['!online', 'Lists online players.', 'Player'],
+		['!refill', 'Refills chargeable amulets and rings with silver tokens.', 'Player'],
+		['!reward', 'Claims your exercise weapon reward.', 'Player'],
+		['!sellhouse', 'Sells a house.', 'Player'],
+		['!serverinfo', 'Shows server information.', 'Player'],
+		['!time', 'Shows the server time.', 'Player'],
+		['!transfer', 'Transfers money to another player.', 'Player'],
+		['!vip', 'Shows your VIP status.', 'Player'],
+		['!withdraw', 'Withdraws money from the bank.', 'Player'],
+	];
+
+	$exists = $pdo->prepare('SELECT COUNT(*) FROM `commands` WHERE `words` = ?');
+	$insert = $pdo->prepare('INSERT INTO `commands` (`words`, `description`, `group_type`) VALUES (?, ?, ?)');
+	foreach ($commands as $command) {
+		$exists->execute([$command[0]]);
+		if ((int)$exists->fetchColumn() === 0) {
+			$insert->execute($command);
+		}
+	}
+
+	$mark = $pdo->prepare('INSERT INTO myaac_config (`name`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)');
+	$mark->execute(['commands_seeded', date(DATE_ATOM)]);
+}
+
 function finish_myaac_install(PDO $pdo): void
 {
 	global $cache, $config, $db, $eloquentConnection, $hooks, $locale, $ots, $twig;
@@ -380,6 +566,7 @@ $pdo = wait_for_database();
 wait_for_canary_schema($pdo);
 import_myaac_schema($pdo);
 ensure_canary_myaac_columns($pdo);
+ensure_commands_table($pdo);
 set_myaac_database_version($pdo);
 finish_myaac_install($pdo);
 echo "MyAAC quickstart is ready.\n";
