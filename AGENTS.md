@@ -1,45 +1,96 @@
-# Canary-specific guidance
+# Orientação específica do Canary
 
-The global Git, commit, PR, C++ header, exception, and documentation policies apply. This file only records Canary-specific gates.
+As políticas globais de Git, commit, PR, cabeçalho C++, exceção e documentação se aplicam. Este arquivo registra apenas os portões específicos do Canary.
 
 ## Recurring Defect Prevention
 
-- For a reusable defect, inspect analogous paths by behavior and ownership, fix confirmed siblings atomically, and keep the audit proportional; do not turn a one-off into a speculative refactor.
-- Decide whether tooling makes recurrence impossible. If not, add a narrow rule to the nearest `AGENTS.md` that states the unsafe pattern, required alternative, and validation rather than incident history.
-- Prefer enforceable safeguards—types, helpers, static checks, architecture docs, or focused tests—especially for lifetime, arithmetic, identity, ownership, bounds, and cancellation escapes.
+- Para um defeito reutilizável, inspecione caminhos análogos por comportamento e propriedade, corrija irmãos confirmados de forma atômica e mantenha a auditoria proporcional; não transforme um caso isolado em uma refatoração especulativa.
+- Decida se o ferramental torna a recorrência impossível. Se não, adicione uma regra estreita ao `AGENTS.md` mais próximo que declare o padrão inseguro, a alternativa exigida e a validação, em vez de histórico de incidentes.
+- Prefira salvaguardas aplicáveis — tipos, auxiliares, verificações estáticas, documentos de arquitetura ou testes focados — especialmente para vida útil, aritmética, identidade, propriedade, limites e escapes de cancelamento.
 
 ## Deferred Callback Lifetime Safety
 
-- Assume scheduled, deferred, timer, and worker callbacks can outlive their source object or state.
-- Never capture raw `this`, references, iterators, or mutable-container pointers across that boundary. Use immutable values plus `std::weak_ptr` or re-resolvable identity validated with the original identity, generation, epoch, or session token.
-- Removal, replacement, reload, or reinterpretation must cancel pending work or advance a checked generation. Callback-owning types are non-movable unless moving cancels or safely rebinds every event.
-- Use bounded arithmetic for intervals; stale work must become a no-op before gameplay, Lua, combat, movement, persistence, or client output. Cover destroyed/replaced owners, reused IDs, shutdown, and ownership transfer where practical.
+- Assuma que callbacks agendados, adiados, de timer e de worker podem sobreviver ao seu objeto ou estado de origem.
+- Nunca capture `this` bruto, referências, iteradores ou ponteiros de contêineres mutáveis através dessa fronteira. Use valores imutáveis mais `std::weak_ptr` ou identidade re-resolvível validada com a identidade original, geração, época ou token de sessão.
+- Remoção, substituição, recarga ou reinterpretação devem cancelar trabalho pendente ou avançar uma geração verificada. Tipos que possuem callbacks são não-movíveis, a menos que a movimentação cancele ou rebind com segurança cada evento.
+- Use aritmética limitada para intervalos; trabalho obsoleto deve se tornar um no-op antes de gameplay, Lua, combate, movimento, persistência ou saída para o cliente. Cubra proprietários destruídos/substituídos, IDs reutilizados, desligamento e transferência de propriedade quando prático.
 
 ## Static Ownership Lifetime Safety
 
-- Never rely on cross-translation-unit static destruction order for caches, registries, or other global owners of gameplay objects. Prefer runtime-owned state; when global ownership is unavoidable, provide an explicit idempotent drain during controlled shutdown.
-- Stop and join every producer and consumer before draining global ownership, and release retained objects while all services their destructors may access are still alive. Validate shutdown with retained entries and lifetime instrumentation where practical.
+- Nunca confie na ordem de destruição estática entre unidades de tradução para caches, registros ou outros proprietários globais de objetos de gameplay. Prefira estado de propriedade em tempo de execução; quando a propriedade global for inevitável, forneça um dreno idempotente explícito durante o desligamento controlado.
+- Pare e junte cada produtor e consumidor antes de drenar a propriedade global, e libere objetos retidos enquanto todos os serviços que seus destrutores podem acessar ainda estão vivos. Valide o desligamento com entradas retidas e instrumentação de vida útil quando prático.
 
 ## Canary build discipline
 
-- Before an authorized local build, read `docs/building/local-validation.md`; its maintained entry-point, environment, preset, cache, and MSVC Ninja workflow is mandatory.
-- C++ source/header additions, removals, and renames must update every maintained entry: the relevant CMake list, server `vcproj/canary.vcxproj`, and test CMake list when applicable.
+- Antes de uma build local autorizada, leia `docs/building/local-validation.md`; seu ponto de entrada mantido, ambiente, preset, cache e fluxo de trabalho MSVC Ninja são obrigatórios.
+- Adições, remoções e renomeações de fontes/cabeçalhos C++ devem atualizar cada entrada mantida: a lista CMake relevante, `server vcproj/canary.vcxproj` e a lista CMake de testes quando aplicável.
 
 ### MSVC Ninja dependency tracking
 
-- Before configuring, repairing, or auditing an MSVC Ninja build, read `docs/building/local-validation.md#msvc-ninja-dependency-tracking`. Its code-page, launcher, dependency-log, and concurrency rules remain mandatory.
+- Antes de configurar, reparar ou auditar uma build MSVC Ninja, leia `docs/building/local-validation.md#msvc-ninja-dependency-tracking`. Suas regras de página de código, lançador, log de dependência e concorrência permanecem obrigatórias.
 
 ## Precompiled Header Policy
 
-- `src/pch.hpp` owns broad shared standard includes; do not duplicate an unguarded PCH include.
-- Headers must declare their public dependencies. When a source needs a PCH-provided include without PCH, guard it with `#ifndef USE_PRECOMPILED_HEADERS`; add broad includes to the PCH with the same local fallback.
+- `src/pch.hpp` possui inclusões padrão compartilhadas amplas; não duplique uma inclusão PCH não protegida.
+- Cabeçalhos devem declarar suas dependências públicas. Quando uma fonte precisa de uma inclusão fornecida pelo PCH sem PCH, proteja com `#ifndef USE_PRECOMPILED_HEADERS`; adicione inclusões amplas ao PCH com o mesmo fallback local.
 
 ## Lua Shared Userdata Gate
 
-- Before changing `std::shared_ptr` Lua userdata, read `docs/systems/lua-shared-userdata.md` and use its typed trait, registration, and push helpers.
-- Never combine shared `pushUserdata` with a manual metatable, use a weak metatable for shared userdata, or wrap a borrowed object without a no-op deleter. Run the document's two `rg` checks and investigate every match.
+- Antes de alterar userdata Lua `std::shared_ptr`, leia `docs/systems/lua-shared-userdata.md` e use seus auxiliares de registro, traço tipado e push.
+- Nunca combine `pushUserdata` compartilhado com uma metatable manual, use uma metatable fraca para userdata compartilhado, ou envolva um objeto emprestado sem um deleter no-op. Execute as duas verificações `rg` do documento e investigue cada correspondência.
 
 ## Docker Quickstart Policy
 
-- For quickstart changes, read `docs/docker/quickstart-for-beginners.md` and `docker/DOCKER.md`; keep CI/build, development, and user quickstart responsibilities separate.
-- The default client path is `login-server` at `http://localhost:8088/login`, never MyAAC `login.php`. MyAAC remains website/admin-only, uses `slawkens/myaac` `2.x`, and keeps `http://localhost:8080`; public config stays `CANARY_*`, and the quickstart uses the published Canary runtime image.
+- Para mudanças no quickstart, leia `docs/docker/quickstart-for-beginners.md` e `docker/DOCKER.md`; mantenha as responsabilidades de CI/build, desenvolvimento e quickstart do usuário separadas.
+- O caminho padrão do cliente é `login-server` em `http://localhost:8088/login`, nunca `login.php` do MyAAC. O MyAAC permanece apenas para site/admin, usa `slawkens/myaac` `develop` e mantém `http://localhost:8080`; a configuração pública permanece `CANARY_*`, e o quickstart usa a imagem de runtime publicada do Canary.
+
+## Regras para Agentes de IA
+
+### Modo Passivo (Padrão)
+
+- O modo passivo é o padrão obrigatório (`default`).
+- No modo passivo, o agente de IA deve apenas ler, compreender e sugerir.
+- Nenhuma execução, modificação, remoção, build, commit, PR, ou alteração de arquivo deve ser realizada sem ordem explícita.
+- Se o prompt não contiver comando para execução, o agente deve permanecer no modo passivo.
+
+### Modo Ativo
+
+- O modo ativo só é ativado quando há ordem explícita de execução ou ativação do modo no prompt.
+- Exemplos de ativação: "execute", "remova", "edite", "faça a build", "confirme", "ative o modo ativo".
+- No modo ativo, o agente pode executar ações conforme solicitado, mas ainda deve confirmar antes de operações destrutivas quando apropriado.
+
+### Regra Geral
+
+- Se no prompt não houver comando para execução, o agente de IA deve rodar no modo passivo.
+- A transição para modo ativo requer instrução explícita e inequívoca no prompt do usuário.
+
+## Regras de Formatação de Documentos `.md`
+
+- Não crie `.md` com formatações exageradas; use apenas o básico necessário para leitura humana.
+- Evite tabelas complexas, listas aninhadas profundas, blocos de código extensos sem necessidade, emojis, cores, ou formatações decorativas.
+- Priorize texto simples, títulos curtos (`#`, `##`), listas simples (`-` ou `*`) e parágrafos curtos.
+- O objetivo é economia de token e contexto ao utilizar agentes de IA; mantenha o documento direto e legível.
+
+## Mapeamento do Projeto
+
+`src/`
+- `game/` → engine/core, dispatcher, scheduler, budget, policy
+- `creatures/` → player, monster, npc, definitions
+- `server/network/` → protocol/login, protocol/game
+- `lua/` → bindings, enums, modal_window, docgen
+- `items/` → item definitions
+- `map/` → world, map management
+- `io/` → persistence, database access
+- `utils/` → definitions, helpers
+
+`data/`
+- `scripts/` → gameplay Lua (quests, spells, actions, movements)
+- `libs/` → shared Lua libraries (tables, functions)
+- `canary/` → minimal datapack
+- `otservbr-global/` → full global datapack
+
+`docs/`
+- `systems/` → architecture docs per module (taskboard, livestream, multiprotocol, performance)
+- `building/` → build/CI docs (local-validation, windows-cmake, recompile)
+- `lua-api/` → generated Lua API docs
+- `docker/` → quickstart docs
