@@ -17,75 +17,6 @@ MSVC precompiled headers remain worktree-local. Current sccache releases report 
 
 Never junction, symlink, or otherwise share an entire `build` or `vcpkg_installed` directory manually. Do not place the pool inside a primary worktree.
 
-## Windows setup
-
-From a worktree in each independent Git repository that should participate, run:
-
-```powershell
-pwsh -File tools/configure_shared_build_cache.ps1
-```
-
-The Solution bridge requires MSBuild 17.8 or newer because it queries evaluated project properties without compiling. If the machine has more than one Visual Studio/MSBuild installation, select the supported executable that actually opens or builds the Solutions:
-
-```powershell
-pwsh -File tools/configure_shared_build_cache.ps1 -SolutionMSBuildPath <path-to-MSBuild.exe>
-```
-
-The helper persists that choice as `CANARY_SOLUTION_MSBUILD_PATH` and uses it whenever it regenerates Solution contracts. The exact MSBuild executable is a consumer input, so switching to another installation requires regenerating the `.props`; the neutral dependency fingerprint and expanded vcpkg tree can still remain identical.
-
-The first invocation creates a machine-local repository registry below the shared cache root. Later invocations add the current repository's Git common directory. Every invocation re-enumerates all registered repositories and their worktrees, so `SCCACHE_BASEDIRS` and cache audits cover the complete set instead of replacing one fork with another.
-
-For backward compatibility, the default shared root is a `canary-build-cache` directory beside the active `VCPKG_ROOT`. Override it with the same short, local path in every participating repository when needed:
-
-```powershell
-pwsh -File tools/configure_shared_build_cache.ps1 -CacheRoot <cache-root>
-```
-
-The helper:
-
-- persists `CANARY_SHARED_CACHE_ROOT` for the current Windows user;
-- verifies that the pool and its existing ancestors are on a ready local fixed volume without reparse points, persists `CANARY_SHARED_CACHE_LOCAL_FILESYSTEM_VERIFIED=ON`, and binds that proof to the exact path in `CANARY_SHARED_CACHE_VERIFIED_ROOT`;
-- registers the current independent Git repository and discovers all its worktrees;
-- preserves an existing vcpkg binary-cache configuration or creates a local file backend when absent;
-- never persists or prints an existing `VCPKG_BINARY_SOURCES`, because it may contain credentials;
-- makes the vcpkg downloads directory explicit and global;
-- does not persist or change `VCPKG_ROOT`; the active project or tool manager owns the vcpkg executable;
-- pins the Visual Studio instance selected by vcpkg in the compatibility variable `CANARY_VCPKG_VISUAL_STUDIO_PATH`; the CMake module exports the standard vcpkg variable only to its configure process;
-- manages `SCCACHE_BASEDIRS` as the union of every registered worktree root plus pre-existing unmanaged entries;
-- creates cache directories and, when the repository carries the Solution bridge, prepares its ignored generated `.props`; it does not configure CMake or compile the project.
-
-Restart open terminals and long-running development applications after setup. Restart an existing sccache server only after active builds finish. Run the helper after adding, moving, or removing worktrees.
-
-Audit all registered repositories without mutation:
-
-```powershell
-pwsh -File tools/configure_shared_build_cache.ps1 -AuditOnly
-```
-
-Remove the current repository family from the machine-local registry before retiring it:
-
-```powershell
-pwsh -File tools/configure_shared_build_cache.ps1 -UnregisterCurrentRepository
-```
-
-This updates the managed sccache roots but does not delete the repository or any cache data.
-
-Remove only the legacy transient directories below the active `VCPKG_ROOT` with:
-
-```powershell
-pwsh -File tools/configure_shared_build_cache.ps1 -CleanTransientVcpkg
-```
-
-The helper refuses cleanup while build-related processes are active and holds the vcpkg root lock during deletion. It preserves installed trees, downloads, binary packages, and fingerprint-specific pools. Cleanup mode does not register repositories, persist environment variables, create the shared layout, detect compilers, or regenerate Solution contracts.
-
-To reclaim only the disposable `buildtrees` and `packages` data for one known fingerprint pool, pass its full dependency SHA-256:
-
-```text
-pwsh -File tools/configure_shared_build_cache.ps1 -CleanSharedFingerprintTransients <full-dependency-fingerprint>
-```
-
-This narrower cleanup validates the full-hash identity metadata, including the recorded schema and dependency contract for versioned schemas, confines both targets to the verified local cache root, holds the registry operation lock and that installed tree's vcpkg lock, and refuses to run while build processes are active. It never removes the expanded installed tree, metadata, downloads, or binary cache, and it performs no setup side effects. Because it does not prune persistent data, it remains suitable when the global consumer audit is incomplete; pruning an installed fingerprint still requires the complete audit described below.
-
 ## Non-Windows setup
 
 Set `CANARY_SHARED_CACHE_ROOT` to one short local path outside every participating checkout. After independently verifying that exact path is on a local filesystem with reliable lock and rename semantics, set `CANARY_SHARED_CACHE_LOCAL_FILESYSTEM_VERIFIED=ON` and set `CANARY_SHARED_CACHE_VERIFIED_ROOT` to the same absolute path. Repeat the verification whenever the root changes. Keep downloads, the vcpkg binary cache, and sccache global. Build the `SCCACHE_BASEDIRS` list from the exact roots emitted by `git worktree list` for every independent repository, separated by `:`.
@@ -115,7 +46,7 @@ If sharing cannot be proven, a fresh configure uses `<binary-dir>/vcpkg_installe
 
 Container and packaging stages may preprovision an immutable installed tree and configure with `VCPKG_MANIFEST_INSTALL=OFF`. In that explicit mode the module preserves the caller's `VCPKG_INSTALLED_DIR`, does not assign shared transient roots, and marks the shared pool inactive. Switching an existing managed configure tree to or from this mode still requires `--fresh`. Do not use this exception for an installation that vcpkg will mutate.
 
-Windows Ninja presets that select `cl.exe` require a Visual Studio developer environment. `VsDevCmd.bat` may replace an existing `VCPKG_ROOT` with the vcpkg bundled by Visual Studio, so initialize the developer environment first and then select the project-managed `VCPKG_ROOT` before running the helper, configure, or build in that same environment. A different vcpkg installation is a different dependency contract and may intentionally select a different pool or trigger the safe local fallback. On other hosts, set both `CC` and `CXX`, or both CMake compiler variables, when the first configure cannot identify them safely.
+Ninja presets that select `cl.exe` require a Visual Studio developer environment. `VsDevCmd.bat` may replace an existing `VCPKG_ROOT` with the vcpkg bundled by Visual Studio, so initialize the developer environment first and then select the project-managed `VCPKG_ROOT` before running the helper, configure, or build in that same environment. A different vcpkg installation is a different dependency contract and may intentionally select a different pool or trigger the safe local fallback. On other hosts, set both `CC` and `CXX`, or both CMake compiler variables, when the first configure cannot identify them safely.
 
 Disable the shared installed tree for an isolated configure with:
 
@@ -130,48 +61,6 @@ cmake --fresh --preset <configure-preset> -DCANARY_USE_SHARED_VCPKG_INSTALLED=OF
 ```
 
 Use separate configure presets and binary directories if opt-in and opt-out builds must exist simultaneously.
-
-## Visual Studio Solution builds
-
-Repositories that include `SharedVcpkgCache.targets` in their maintained Solution directory use the same dependency resolver for CMake and MSBuild. Normal setup generates an ignored, machine-local `.canary-shared-cache/SharedVcpkgCache.props` beside the selected project. The bridge discovers the maintained `vcproj`, `vc18`, or `vc17` project and all configurations for the requested platform. Regenerate it directly when only the Solution contract changed:
-
-```powershell
-pwsh -File tools/configure_shared_solution_cache.ps1
-```
-
-Projects whose Solution uses configuration names other than the conventional
-`Debug` and `Release` can generate all contracts explicitly, for example:
-
-```powershell
-pwsh -File tools/configure_shared_solution_cache.ps1 -Configurations Debug,OpenGL,DirectX
-```
-
-Configuration and platform names may contain spaces, such as `Release Static` or `Any CPU`. The helper rejects XML, path, and MSBuild metacharacters instead of embedding untrusted values in the generated condition.
-
-The setup and audit helper discovers the maintained x64 project in the common
-`vcproj`, `vc18`, or `vc17` layout and derives its configuration names from the
-project file. This keeps repositories with a CMake entry point and a native
-Solution under the same dependency contract without sharing their object,
-PCH, PDB, generated-source, or output directories.
-
-Reload the Visual Studio project after the file changes. The generated file supplies each supported configuration with its validated `VcpkgInstalledDir`, fingerprint-specific `buildtrees` and `packages` roots, cleanup options, selected vcpkg checkout, and pinned Visual Studio instance. The tracked target re-evaluates the complete contract immediately before `VcpkgInstallManifestDependencies` inside the active developer environment; stale generated values stop the build and request regeneration instead of mutating the wrong pool.
-
-The bridge uses two hashes:
-
-- the **dependency fingerprint** is neutral between CMake and MSBuild and owns the expanded installed and transient roots;
-- the **consumer fingerprint** binds that dependency contract to the invoking build system, generator or configuration, and its build-system tool.
-
-Consequently, a Solution Release configuration and a CMake Release preset share one expanded tree only when their target and host triplets, features, registries, overlays, linkage, compiler, toolset, SDK, vcpkg revision, and dependency tools all match. Debug or any other configuration with a different contract receives another dependency fingerprint automatically. Command-line MSBuild overrides for the manifest root, triplets, link configuration, toolset, SDK, or install options are compared with the generated contract and fail closed when incompatible. Never copy a fingerprint from another configuration or edit the generated `.props`.
-
-When no generated `.props` exists, the Solution uses `vcpkg_installed`, `.vcpkg-buildtrees/<configuration>`, and `.vcpkg-packages/<configuration>` below its own project directory. This is the safe fallback when the global cache is not configured. Solution objects, PCH/PDB files, generated protocol sources, intermediate directories, and executables always remain local, even when dependencies converge with CMake.
-
-Audit only the Solution bridge without writing pools or generated files:
-
-```powershell
-pwsh -File tools/configure_shared_solution_cache.ps1 -AuditOnly
-```
-
-Use `-WhatIf` to preview the contracts. The repository-wide `configure_shared_build_cache.ps1 -AuditOnly` also scans and re-evaluates generated Solution contracts across every registered worktree. The Solution inherits the global vcpkg downloads and binary cache. It does not automatically route compiler invocations through sccache; adding such a launcher is a separate concern, and MSVC PCH compilations remain ineligible.
 
 ## Sharing across baselines and forks
 
@@ -218,8 +107,6 @@ The dependency fingerprint contains inputs that can change the manifest installa
 - chainloaded toolchain contents;
 - host identity and the CMake executable/version used as a dependency tool;
 - C and C++ compiler executable hashes;
-- on Windows, the pinned vcpkg Visual Studio instance, `vcvarsall.bat`, and selectable MSVC compiler tool binaries;
-- selected Visual Studio toolset, Windows SDK, and host/target architecture environment;
 - vcpkg executable, toolchain, repository revision, and relevant dirty state.
 
 The consumer fingerprint includes the dependency fingerprint, normalized resolver implementation hash, and complete install options, and then adds either the CMake generator and CMake consumer identity, or the MSBuild executable, build configuration, link configuration, platform, toolset, and SDK. Consumer-specific values do not create duplicate installed trees when the dependency contract is identical, but they are validated to prevent a stale CMake cache or generated `.props` from silently changing build systems.
@@ -240,7 +127,7 @@ An existing configured preset never changes fingerprint or falls back in place. 
 
 Fingerprint input files and trees are CMake configure dependencies. Adding, removing, or changing a manifest, registry, overlay, triplet, compiler, or toolchain input requests regeneration.
 
-The full dependency SHA-256 and non-local metadata are written below `<cache-root>/metadata/v5`. Directory names use the first 24 hexadecimal characters to limit Windows path length; the metadata lock verifies the full hash before a shortened directory is accepted.
+The full dependency SHA-256 and non-local metadata are written below `<cache-root>/metadata/v5`. Directory names use the first 24 hexadecimal characters to limit path length; the metadata lock verifies the full hash before a shortened directory is accepted.
 
 ## Concurrency
 

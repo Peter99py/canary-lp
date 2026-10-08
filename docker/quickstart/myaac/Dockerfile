@@ -1,6 +1,6 @@
 FROM php:8.3-apache AS builder
 
-ARG MYAAC_REF=2.x
+ARG MYAAC_REF=develop
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apt-get update \
@@ -12,8 +12,6 @@ RUN apt-get update \
 		libpng-dev \
 		libzip-dev \
 		unzip \
-		libfreetype6-dev \
-	&& docker-php-ext-configure gd --with-freetype \
 	&& docker-php-ext-install -j"$(nproc)" gd intl mysqli opcache pdo_mysql zip \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -47,8 +45,6 @@ RUN apt-get update \
 		libpng-dev \
 		libzip-dev \
 		unzip \
-		libfreetype6-dev \
-	&& docker-php-ext-configure gd --with-freetype \
 	&& docker-php-ext-install -j"$(nproc)" gd intl mysqli opcache pdo_mysql zip \
 	&& a2enmod headers rewrite \
 	&& rm -rf /var/lib/apt/lists/*
@@ -60,6 +56,9 @@ RUN rm -rf /var/www/html/node_modules \
 
 COPY --chmod=755 quickstart/myaac/entrypoint.sh /usr/local/bin/myaac-entrypoint
 COPY quickstart/myaac/bootstrap.php /usr/local/bin/myaac-bootstrap.php
+
+COPY quickstart/myaac/plugins/ /var/www/html/plugins/
+RUN chown -R www-data:www-data /var/www/html/plugins
 
 ENTRYPOINT ["myaac-entrypoint"]
 CMD ["apache2-foreground"]

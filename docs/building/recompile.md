@@ -14,15 +14,13 @@ Restarting through the script requires `--restart-service`.
 - [Build and installation](#build-and-installation)
 - [Seven-day retention](#seven-day-retention)
 - [Investigating a crash](#investigating-a-crash)
-- [Windows and WSL](#windows-and-wsl)
 - [Validation without compiling Canary](#validation-without-compiling-canary)
 - [Troubleshooting](#troubleshooting)
 
 ## Requirements
 
 Run this script in Linux, including Linux under WSL. It produces Linux ELF
-executables. For native Windows builds, use the
-[Windows CMake guide](<windows-(cmake).md>).
+executables.
 
 Set up the compiler, Ninja and vcpkg using the [Ubuntu](ubuntu-24.04.md) or
 [Debian](debian.md) guide first. CMake must meet the minimum in
@@ -220,22 +218,6 @@ debug information already removed from it.
 Building the same source commit again does not guarantee an identical
 executable: compiler, dependencies and build settings can differ. Prefer the
 original binary retained by the script.
-
-## Windows and WSL
-
-PowerShell does not interpret Bash scripts. With WSL installed and the current
-directory set to this repository, run:
-
-```powershell
-wsl --list --quiet
-wsl -d Ubuntu -- bash ./recompile.sh --help
-wsl -d Ubuntu -- python3 ./tools/test_recompile.py -v
-```
-
-Replace `Ubuntu` with the installed distribution's name if needed. The tests
-use temporary Linux fixtures and do not compile or start Canary. A normal
-build through WSL produces a Linux executable, even when launched from
-PowerShell. See the [WSL setup guide](wsl-ubuntu-24.04.md) for prerequisites.
 
 ## Validation without compiling Canary
 

@@ -1,0 +1,17 @@
+{
+	"name": "Level Stats Fixer",
+	"description": "Ao mudar o level (ou a vocacao) no editor de players do admin, recalcula em modo absoluto vida maxima, mana maxima e cap, para o personagem nao ficar desfalcado.",
+	"version": "1.0",
+	"author": "silverlake-ot",
+	"contact": "admin@localhost",
+	"hooks": {
+		"level-stats-fixer": {
+			"type": "ADMIN_BEFORE_PAGE",
+			"file": "plugins/level-stats-fixer/hook.php"
+		}
+	},
+	"uninstall": [
+		"plugins/level-stats-fixer.json",
+		"plugins/level-stats-fixer"
+	]
+}

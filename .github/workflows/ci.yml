@@ -16,7 +16,6 @@ on:
       - "docs/lua-api/**"
       - "docs/systems/**"
       - "tools/**"
-      - "vcproj/**"
       - "vcpkg.json"
       - ".mise.toml"
       - ".github/requirements-cmake-format.txt"
@@ -40,7 +39,6 @@ on:
       - "docs/lua-api/**"
       - "docs/systems/**"
       - "tools/**"
-      - "vcproj/**"
       - "vcpkg.json"
       - ".mise.toml"
       - ".github/requirements-cmake-format.txt"
@@ -85,7 +83,6 @@ jobs:
               - "src/**"
               - "tests/**"
               - "cmake/**"
-              - "vcproj/**"
               - "vcpkg.json"
               - ".mise.toml"
               - ".github/requirements-cmake-format.txt"
@@ -96,8 +93,6 @@ jobs:
               - "CMakePresets.json"
               - ".github/workflows/ci.yml"
               - ".github/workflows/reusable-build-linux.yml"
-              - ".github/workflows/reusable-build-windows.yml"
-              - ".github/workflows/reusable-build-macos.yml"
               - ".github/scripts/**"
             shared_datapack:
               - "data/**"
@@ -163,30 +158,6 @@ jobs:
       buildtypes: ${{ needs.changes.outputs.full_matrix == 'true' && '["linux-release","linux-debug"]' || '["linux-release"]' }}
       run_canary_smoke: ${{ needs.changes.outputs.run_canary_smoke == 'true' }}
       run_global_smoke: ${{ needs.changes.outputs.run_global_smoke == 'true' }}
-    secrets: inherit
-
-  build-windows:
-    name: Build - Windows
-    needs: [changes, checks, tests-lua]
-    if: needs.changes.outputs.full_matrix == 'true' && needs.checks.result == 'success' && needs.tests-lua.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false)
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/reusable-build-windows.yml
-    with:
-      run_canary_smoke: ${{ needs.changes.outputs.run_canary_smoke == 'true' }}
-    secrets: inherit
-
-  build-macos:
-    name: Build - macOS
-    needs: [changes, checks, tests-lua]
-    if: needs.changes.outputs.full_matrix == 'true' && needs.checks.result == 'success' && needs.tests-lua.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false)
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/reusable-build-macos.yml
-    with:
-      run_canary_smoke: ${{ needs.changes.outputs.run_canary_smoke == 'true' }}
     secrets: inherit
 
   build-docker:

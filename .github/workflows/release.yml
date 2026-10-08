@@ -165,32 +165,6 @@ jobs:
     secrets:
       VCPKG_PACKAGES_TOKEN: ${{ secrets.VCPKG_PACKAGES_TOKEN }}
 
-  build-windows:
-    name: Build - Windows
-    needs: [prepare-tag, validate, checks, tests-lua]
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/reusable-build-windows.yml
-    with:
-      run_canary_smoke: true
-      release_tag: ${{ needs.validate.outputs.tag }}
-      checkout_ref: ${{ needs.prepare-tag.outputs.commit_sha }}
-
-  build-macos:
-    name: Build - macOS
-    needs: [prepare-tag, validate, checks, tests-lua]
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/reusable-build-macos.yml
-    with:
-      run_canary_smoke: true
-      release_tag: ${{ needs.validate.outputs.tag }}
-      checkout_ref: ${{ needs.prepare-tag.outputs.commit_sha }}
-    secrets:
-      VCPKG_PACKAGES_TOKEN: ${{ secrets.VCPKG_PACKAGES_TOKEN }}
-
   build-docker:
     name: Build - Docker
     needs: [prepare-tag, validate, checks, tests-lua]
@@ -267,7 +241,7 @@ jobs:
 
   publish:
     name: Publish Release
-    needs: [prepare-tag, validate, validate-client-release, build-linux, build-windows, build-macos, build-docker]
+    needs: [prepare-tag, validate, validate-client-release, build-linux, build-docker]
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -355,9 +329,6 @@ jobs:
 
           download_artifact_zip "canary-linux-release" "canary-linux-release.zip"
           download_artifact_zip "canary-linux-debug" "canary-linux-debug.zip"
-          download_artifact_zip "canary-windows-cmake-release" "canary-windows-cmake-release.zip"
-          download_artifact_zip "canary-windows-solution-debug" "canary-windows-solution-debug.zip"
-          download_artifact_zip "canary-macos-release" "canary-macos-release.zip"
           download_artifact_zip "canary-docker" "canary-docker.zip"
 
       - name: Copy map from latest published release

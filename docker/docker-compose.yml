@@ -1,4 +1,3 @@
----
 name: otbr
 services:
   db:
@@ -39,8 +38,6 @@ services:
       CANARY_TEST_ACCOUNTS: "${CANARY_TEST_ACCOUNTS:-true}"
       CANARY_DATA_PACK: "${CANARY_DATA_PACK:-data-otservbr-global}"
       CANARY_MAP_URL: "${CANARY_MAP_URL:-https://github.com/opentibiabr/canary/releases/download/v3.6.1/otservbr.otbm}"
-      # Keep the published runtime image compatible while CANARY_* remains the
-      # public quickstart contract.
       OT_DB_HOST: "${CANARY_DB_HOST:-db}"
       OT_DB_PORT: "${CANARY_DB_PORT:-3306}"
       OT_DB_DATABASE: "${CANARY_DB_NAME:-canary}"
@@ -72,7 +69,7 @@ services:
       context: .
       dockerfile: quickstart/myaac/Dockerfile
       args:
-        MYAAC_REF: "${MYAAC_REF:-2.x}"
+        MYAAC_REF: "${MYAAC_REF:-develop}"
     restart: unless-stopped
     environment:
       CANARY_DB_HOST: "${CANARY_DB_HOST:-db}"

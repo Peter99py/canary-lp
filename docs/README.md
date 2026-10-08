@@ -209,7 +209,6 @@ Maintenance
 ## Supported Platforms
 
 * Linux
-* Windows
 * macOS
 
 ---

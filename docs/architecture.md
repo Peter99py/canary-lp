@@ -549,7 +549,6 @@ Canary uses:
 Supported platforms:
 
 * Linux
-* Windows
 * macOS
 
 Compilation flow:

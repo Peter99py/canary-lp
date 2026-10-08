@@ -42,12 +42,6 @@ Open a terminal in the repository root, then enter the `docker` directory:
 cd docker
 ```
 
-On Windows PowerShell:
-
-```powershell
-.\up.ps1
-```
-
 On Linux or macOS:
 
 ```bash
@@ -79,12 +73,6 @@ password: test
 ## Start For Other PCs On Your Network
 
 Use this when the client runs on another computer in the same local network.
-
-On Windows PowerShell:
-
-```powershell
-.\up.ps1 -Lan
-```
 
 On Linux or macOS:
 

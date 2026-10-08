@@ -1,46 +1,30 @@
 ---
-name: Cleanup Actions caches
-
+name: Cleanup caches by a branch
 on:
-  pull_request_target:
+  pull_request:
     types:
       - closed
-  delete:
-
-permissions:
-  contents: read
 
 jobs:
-  cleanup-pull-request:
-    if: github.event_name == 'pull_request_target'
+  cleanup:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
     steps:
-      - name: Delete pull request caches
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CACHE_REF: refs/pull/${{ github.event.pull_request.number }}/merge
-        run: >-
-          gh cache delete --all
-          --ref "$CACHE_REF"
-          --repo "$GITHUB_REPOSITORY"
-          --succeed-on-no-caches
+      - name: Cleanup
+        run: |
+          gh extension install actions/gh-actions-cache
 
-  cleanup-branch:
-    if: github.event_name == 'delete' && github.event.ref_type == 'branch'
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-    steps:
-      - name: Delete branch caches
+          echo "Fetching list of cache key"
+          cacheKeysForPR=$(gh actions-cache list -R "$REPO" -B "$BRANCH" -L 100 | cut -f 1 )
+
+          ## Setting this to not fail the workflow while deleting cache keys.
+          set +e
+          echo "Deleting caches..."
+          for cacheKey in $cacheKeysForPR
+          do
+              gh actions-cache delete "$cacheKey" -R "$REPO" -B "$BRANCH" --confirm
+          done
+          echo "Done"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CACHE_REF: refs/heads/${{ github.event.ref }}
-        run: >-
-          gh cache delete --all
-          --ref "$CACHE_REF"
-          --repo "$GITHUB_REPOSITORY"
-          --succeed-on-no-caches
+          REPO: ${{ github.repository }}
+          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge

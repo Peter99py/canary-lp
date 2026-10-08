@@ -137,8 +137,7 @@ Install Git, a supported C++ compiler, and [mise](https://mise.jdx.dev/).
 The repository's `.mise.toml` installs the pinned CMake, Ninja, Python, and
 sccache versions used by the native development workflow and relevant CI jobs.
 
-Linux requires GCC or Clang. Windows requires Visual Studio with Desktop
-Development with C++.
+Linux requires GCC or Clang.
 
 ---
 
@@ -204,25 +203,6 @@ mise run configure linux-release
 mise run build linux-release
 ```
 
-## Windows
-
-Open the repository in Visual Studio.
-
-Visual Studio can automatically:
-
-* Detect CMake
-* Resolve dependencies through vcpkg
-* Generate the build cache
-
-Make sure `VCPKG_ROOT` is configured before opening the folder or configuring
-the CMake preset.
-
-Then:
-
-```text
-Build → Build All
-```
-
 ---
 
 # Dependency Management
@@ -252,14 +232,6 @@ If dependencies fail:
 cd "$VCPKG_ROOT"
 git pull
 ./bootstrap-vcpkg.sh
-```
-
-or on Windows:
-
-```powershell
-Set-Location $env:VCPKG_ROOT
-git pull
-.\bootstrap-vcpkg.bat
 ```
 
 ---

@@ -146,8 +146,6 @@ assets exist:
 
 - `canary-linux-release.zip`
 - `canary-linux-debug.zip`
-- `canary-windows-cmake-release.zip`
-- `canary-windows-solution-debug.zip`
 - `canary-macos-release.zip`
 - `canary-docker.zip`
 - `otservbr.otbm`
@@ -260,8 +258,6 @@ release assets:
 
 - `canary-linux-release.zip`
 - `canary-linux-debug.zip`
-- `canary-windows-cmake-release.zip`
-- `canary-windows-solution-debug.zip`
 - `canary-macos-release.zip`
 - `canary-docker.zip`
 - `otservbr.otbm`
