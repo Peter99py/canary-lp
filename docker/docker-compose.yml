@@ -92,6 +92,7 @@ services:
       MYAAC_ADMIN_PLAYER: "${MYAAC_ADMIN_PLAYER:-ADM1}"
       MYAAC_CLIENT_VERSION: "${MYAAC_CLIENT_VERSION:-1513}"
       MYAAC_TIMEZONE: "${MYAAC_TIMEZONE:-America/Fortaleza}"
+      MYAAC_STATUS_IP: "${MYAAC_STATUS_IP:-server}"
     ports:
       - '${MYAAC_HTTP_PORT:-8080}:80'
     networks:

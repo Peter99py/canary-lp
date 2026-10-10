@@ -264,6 +264,7 @@ MYAAC_ADMIN_PASSWORD=admin123
 MYAAC_ADMIN_PLAYER=ADM1
 MYAAC_CLIENT_VERSION=1513
 MYAAC_TIMEZONE=America/Fortaleza
+MYAAC_STATUS_IP=server
 ```
 
 `MYAAC_REF` is the Git ref used when building the MyAAC image. The default is
@@ -282,6 +283,12 @@ first startup.
 The generated MyAAC server path contains the runtime `config.lua` needed for
 database and status settings. It does not mount the full Canary datapack into
 the web container, and it does not include MyAAC's client login webservice file.
+
+`MYAAC_STATUS_IP` is the host MyAAC queries on the status port to show whether
+the server is online. It defaults to the `server` Compose service so the check
+resolves over the internal network; `127.0.0.1` would point at the web container
+itself. The entrypoint applies it to the MyAAC `core.status_ip` setting on every
+startup.
 
 ### Login Server
 

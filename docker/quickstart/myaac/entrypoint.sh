@@ -13,6 +13,7 @@ set -e
 : "${CANARY_STATUS_PORT:=7173}"
 : "${CANARY_STATUS_TIMEOUT:=5000}"
 : "${CANARY_DATA_PACK:=data-otservbr-global}"
+: "${MYAAC_STATUS_IP:=server}"
 
 escape_lua() {
     printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
@@ -34,13 +35,16 @@ require_uint "CANARY_STATUS_TIMEOUT" "$CANARY_STATUS_TIMEOUT"
 
 # MyAAC lê a config do servidor em $server_path (default /canary/).
 # Geramos uma cópia a partir das mesmas variáveis de ambiente do compose.
+# statusProtocolPort fica entre aspas de propósito: o status.php do MyAAC resolve
+# a porta com isset($porta[0]), que dá falso para números e cairia no default
+# 7171 (porta de login). Como string, a porta de status (7173) é respeitada.
 mkdir -p /canary/data/XML
 cat > /canary/config.lua <<EOF
 serverName = "$(escape_lua "$CANARY_SERVER_NAME")"
 ip = "$(escape_lua "$CANARY_SERVER_IP")"
 loginProtocolPort = ${CANARY_LOGIN_PORT}
 gameProtocolPort = ${CANARY_GAME_PORT}
-statusProtocolPort = ${CANARY_STATUS_PORT}
+statusProtocolPort = "${CANARY_STATUS_PORT}"
 statusTimeout = ${CANARY_STATUS_TIMEOUT}
 worldType = "pvp"
 dataPackDirectory = "$(escape_lua "$CANARY_DATA_PACK")"
@@ -83,6 +87,12 @@ mkdir -p \
 
 # Escreve config.local.php e importa o schema (depende de env de runtime).
 php /var/www/html/bootstrap.php
+
+# A checagem de status do MyAAC precisa alcançar o serviço do servidor pela rede
+# do Compose. O default do admin (127.0.0.1) aponta para o próprio container web,
+# então o site reportaria o servidor como offline mesmo com ele no ar.
+php /var/www/html/aac settings:set core.status_ip "$MYAAC_STATUS_IP"
+php /var/www/html/aac cache:clear
 
 chown -R www-data:www-data \
     /var/www/html/config.local.php \

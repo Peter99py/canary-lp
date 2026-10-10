@@ -1,6 +1,15 @@
+# Estágio de assets: gera tools/ext/ (jquery, jquery-ui, bootstrap, tinymce).
+# No MyAAC upstream essa pasta é ignorada no git e criada pelo postinstall do
+# npm a partir de node_modules; sem ela o jQuery e o AdminLTE não carregam.
+FROM node:20-alpine AS assets
+WORKDIR /src
+COPY quickstart/myaac/package.json quickstart/myaac/package-lock.json quickstart/myaac/npm-post-install.js ./
+RUN npm ci --omit=dev
+
 FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 COPY quickstart/myaac/ .
+COPY --from=assets /src/tools/ext ./tools/ext
 RUN rm -rf .git \
     && apk add --no-cache nginx curl git unzip $PHPIZE_DEPS \
     && docker-php-ext-install pdo_mysql \
