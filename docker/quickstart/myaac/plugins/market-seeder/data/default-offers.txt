@@ -1,0 +1,156 @@
+# market-seeder - lista padrao de itens
+# Formato: nome;quantidade;preco_unitario;tier;dias
+# Precos: valor MINIMO das faixas informadas. Ajuste no painel do admin.
+# Esta lista so e usada quando a lista do admin esta vazia (ou pelo botao
+# "Anexar lista padrao"). Itens cujo nome nao existir em items.xml sao ignorados.
+
+# --- Imbuements: Vampirism (Life Leech) ---
+Vampire Teeth;25;1400;0;30
+Bloody Pincers;15;4200;0;30
+Piece of Dead Brain;5;16800;0;30
+
+# --- Void (Mana Leech) ---
+Rope Belt;25;2100;0;30
+Silencer Claws;25;2800;0;30
+Some Grimeleech Wings;5;2800;0;30
+
+# --- Strike (Critical Hit) ---
+Protective Charm;20;1400;0;30
+Sabretooth;25;3500;0;30
+Vexclaw Talon;5;2100;0;30
+
+# --- Epiphany (Magic Level) ---
+Elvish Talisman;25;280;0;30
+Broken Shamanic Staff;15;2100;0;30
+Strand of Medusa Hair;15;4200;0;30
+
+# --- Precision (Distance) ---
+Elven Scouting Glass;25;140;0;30
+Elven Hoof;20;1400;0;30
+Metal Spike;10;2800;0;30
+
+# --- Slash (Sword) ---
+Lion's Mane;25;420;0;30
+Mooh'tah Shell;25;2100;0;30
+War Crystal;5;5600;0;30
+
+# --- Chop (Axe) ---
+Orc Tooth;20;140;0;30
+Battle Stone;25;1400;0;30
+Moohtant Horn;20;2800;0;30
+
+# --- Bash (Club) ---
+Cyclops Toe;20;140;0;30
+Ogre Nose Ring;15;1400;0;30
+Warmaster's Wristguards;10;2100;0;30
+
+# --- Blockade (Shielding) ---
+Piece of Scarab Shell;20;140;0;30
+Brimstone Shell;25;1400;0;30
+Frazzle Skin;25;2800;0;30
+
+# --- Lich Shroud (Death protection) ---
+Flask of Embalming Fluid;25;140;0;30
+Gloom Wolf Fur;20;5600;0;30
+Mystical Hourglass;5;2100;0;30
+
+# --- Dragon Hide (Fire protection) ---
+Green Dragon Leather;20;140;0;30
+Blazing Bone;10;1400;0;30
+Draken Sulphur;5;4200;0;30
+
+# --- Cloud Fabric (Energy protection) ---
+Wyvern Talisman;20;140;0;30
+Crawler Head Plating;15;1400;0;30
+Wyrm Scale;10;1120;0;30
+
+# --- Quara Scale (Ice protection) ---
+Winter Wolf Fur;25;140;0;30
+Thick Fur;15;1400;0;30
+Deepling Warts;10;2100;0;30
+
+# --- Snake Skin (Earth protection) ---
+Piece of Swampling Wood;25;140;0;30
+Snake Skin;20;420;0;30
+Brimstone Fangs;10;1400;0;30
+
+# --- Demon Presence (Holy protection) ---
+Cultish Robe;25;140;0;30
+Cultish Mask;25;1400;0;30
+Hellspawn Tail;20;2100;0;30
+
+# --- Scorch (Fire damage) ---
+Fiery Heart;25;280;0;30
+Green Dragon Scale;5;140;0;30
+Demon Horn;5;1400;0;30
+
+# --- Frost (Ice damage) ---
+Frosty Heart;25;280;0;30
+Seacrest Hair;10;2100;0;30
+Polar Bear Paw;5;2800;0;30
+
+# --- Electrify (Energy damage) ---
+Rorc Feather;25;140;0;30
+Peacock Feather Fan;5;1400;0;30
+Energy Vein;1;7000;0;30
+
+# --- Venom (Earth damage) ---
+Swamp Grass;25;140;0;30
+Poisonous Slime;20;700;0;30
+Slime Heart;2;2800;0;30
+
+# --- Reap (Death damage) ---
+Pile of Grave Earth;25;140;0;30
+Demonic Skeletal Hand;20;1120;0;30
+Petrified Scream;5;4200;0;30
+
+# --- Swiftness (Speed) ---
+Damselfly Wing;15;140;0;30
+Compass;15;420;0;30
+Waspoid Wing;20;1400;0;30
+
+# --- Featherweight (Capacity) ---
+Fairy Wings;20;1400;0;30
+Little Bowl of Myrrh;10;4200;0;30
+Goosebump Leather;5;2800;0;30
+
+# --- Vibrancy (Paralysis removal) ---
+Wereboar Hooves;15;1400;0;30
+Crystallized Anger;10;2800;0;30
+Quill;5;1400;0;30
+
+# --- Equipamentos (Rottenblood / Soul War) ---
+Sanguine Bow;1;325000000;0;30
+Sanguine Greaves;1;364000000;0;30
+Soulbleeder;1;286000000;0;30
+Soulcrusher;1;45500000;0;30
+Sanguine Coil;1;234000000;0;30
+Sanguine Rod;1;286000000;0;30
+
+# --- Sets BIS ---
+Spiritthorn Armor;1;312000000;0;30
+Spiritthorn Helmet;1;260000000;0;30
+Spiritthorn Ring;1;104000000;0;30
+Gnome Shield;1;39000000;0;30
+Alicorn Headguard;1;325000000;0;30
+Alicorn Quiver;1;104000000;0;30
+Falcon Bow;1;39000000;0;30
+Falcon Greaves;1;156000000;0;30
+Arcanomancer Folio;1;260000000;0;30
+Arcanomancer Regalia;1;260000000;0;30
+Gnome Helmet;1;65000000;0;30
+Moonlight Rod;1;286000000;0;30
+Pair of Nightmare Boots;1;130000000;0;30
+
+# --- Aneis e amuletos ---
+Ring of Healing;1;2600;0;30
+Prismatic Ring;1;5200;0;30
+Might Ring;1;32500;0;30
+Prismatic Necklace;1;3900;0;30
+Stone Skin Amulet;1;32500;0;30
+Gill Necklace;1;13000;0;30
+
+# --- Forge / rares ---
+Exalted Core;1;169000;0;30
+Gold Pouch;1;45500000;0;30
+Ferumbras' Hat;1;1300000000;0;30

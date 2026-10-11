@@ -1,0 +1,25 @@
+{
+	"name": "Market Seeder",
+	"description": "Popula o market com ofertas anonimas de um personagem ADM, uma vez por dia, a partir de uma lista editavel no painel do admin. Nao mexe no core do MyAAC.",
+	"version": "1.0",
+	"author": "silverlake-ot",
+	"contact": "admin@localhost",
+	"hooks": {
+		"market-seeder-startup": {
+			"type": "STARTUP",
+			"file": "plugins/market-seeder/hook.php"
+		},
+		"market-seeder-admin": {
+			"type": "ADMIN_BEFORE_PAGE",
+			"file": "plugins/market-seeder/hook.php"
+		},
+		"market-seeder-cronjob": {
+			"type": "CRONJOB",
+			"file": "plugins/market-seeder/cronjob.php"
+		}
+	},
+	"uninstall": [
+		"plugins/market-seeder.json",
+		"plugins/market-seeder"
+	]
+}

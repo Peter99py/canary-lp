@@ -23,6 +23,10 @@
 # Os dois ajustes rodam ANTES do /canary/start.sh, que apenas reescreve um
 # conjunto fixo de chaves (e não mexe nos rates nem em toggleLearnSpells), então
 # as alterações são preservadas.
+# 3) Monta o items.xml do repositorio no container do myaac. O MyAAC le os
+#    itens de data_path/items/items.xml (ver system/src/Items.php); sem isso o
+#    plugin market-seeder nao consegue resolver nome -> id. Montamos apenas o
+#    items.xml (nao o datapack inteiro).
 services:
   server:
     volumes:
@@ -36,3 +40,7 @@ services:
         sed -i -E 's/^[[:space:]]*toggleLearnSpells[[:space:]]*=.*/toggleLearnSpells = false/' /canary/config.lua || true;
         grep -qE '^[[:space:]]*toggleLearnSpells' /canary/config.lua || echo 'toggleLearnSpells = false' >>/canary/config.lua;
         exec /canary/start.sh
+
+  myaac:
+    volumes:
+      - '../data/items/items.xml:/canary/data/items/items.xml:ro'
