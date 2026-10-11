@@ -1,0 +1,17 @@
+{
+	"name": "Give Item",
+	"description": "Permite dar itens a um personagem pelo painel do admin, como o comando /i. Os pedidos sao gravados em myaac_item_delivery e entregues pelo servidor (GlobalEvent/CreatureEvent), online ou no proximo login. Nao mexe no core do MyAAC.",
+	"version": "1.0",
+	"author": "silverlake-ot",
+	"contact": "admin@localhost",
+	"hooks": {
+		"give-item-admin": {
+			"type": "ADMIN_BEFORE_PAGE",
+			"file": "plugins/give-item/hook.php"
+		}
+	},
+	"uninstall": [
+		"plugins/give-item.json",
+		"plugins/give-item"
+	]
+}

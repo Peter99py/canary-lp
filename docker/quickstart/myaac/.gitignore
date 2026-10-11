@@ -78,6 +78,8 @@ plugins/*
 !plugins/email-confirmed-reward
 !plugins/market-seeder.json
 !plugins/market-seeder
+!plugins/give-item.json
+!plugins/give-item
 landing
 
 # system

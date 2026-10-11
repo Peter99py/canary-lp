@@ -39,6 +39,12 @@ services:
     volumes:
       - '../config.lua:/config-src/config.lua:ro'
       - '../data/stages.lua:/canary/data/stages.lua:ro'
+      # 5) Entrega de itens pedidos pelo site (plugin give-item do MyAAC). O MyAAC
+      #    grava os pedidos na tabela myaac_item_delivery (mesmo banco); este
+      #    script Lua entrega para o personagem, online ou no proximo login.
+      #    O datapack core do servidor e carregado de /canary/data (coreDirectory
+      #    no config.lua), por isso o arquivo vai para scripts/globalevents.
+      - '../data/scripts/globalevents/myaac_item_delivery.lua:/canary/data/scripts/globalevents/myaac_item_delivery.lua:ro'
     entrypoint:
       - /bin/sh
       - -c

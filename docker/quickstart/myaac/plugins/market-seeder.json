@@ -1,7 +1,7 @@
 {
 	"name": "Market Seeder",
-	"description": "Popula o market com ofertas anonimas de um personagem ADM, uma vez por dia, a partir de uma lista editavel no painel do admin. Nao mexe no core do MyAAC.",
-	"version": "1.0",
+	"description": "Popula o market com ofertas anonimas de um personagem ADM, uma vez por dia, a partir de uma lista editavel no painel do admin. Renova a validade das ofertas (nao expiram) e esvazia a inbox do dono. Nao mexe no core do MyAAC.",
+	"version": "1.1",
 	"author": "silverlake-ot",
 	"contact": "admin@localhost",
 	"hooks": {

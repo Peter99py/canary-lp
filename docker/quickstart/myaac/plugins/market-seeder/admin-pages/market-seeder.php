@@ -115,14 +115,14 @@ if ($action === 'save_all') {
 		warning('Nao encontrados: ' . htmlspecialchars(implode(', ', array_slice($result['missing'], 0, 50))) . (count($result['missing']) > 50 ? ' ...' : ''));
 	}
 } elseif ($action === 'run_now') {
-	$result = market_seeder_run(true);
-	if (empty($result['ok'])) {
-		error($result['message'] ?? 'Falha ao executar.');
-	} elseif (!empty($result['skipped'])) {
-		info($result['message'] ?? 'Ignorado.');
-	} else {
-		success(sprintf('Execucao concluida: %d inserida(s), %d atualizada(s), %d removida(s).', $result['inserted'] ?? 0, $result['updated'] ?? 0, $result['deleted'] ?? 0));
-	}
+		$result = market_seeder_run(true);
+		if (empty($result['ok'])) {
+			error($result['message'] ?? 'Falha ao executar.');
+		} elseif (!empty($result['skipped'])) {
+			info(($result['message'] ?? 'Ignorado.') . sprintf(' Inbox do dono limpa: %d item(ns) removido(s).', $result['inbox_cleared'] ?? 0));
+		} else {
+			success(sprintf('Execucao concluida: %d inserida(s), %d atualizada(s), %d removida(s), %d limpa(s) da inbox do dono.', $result['inserted'] ?? 0, $result['updated'] ?? 0, $result['deleted'] ?? 0, $result['inbox_cleared'] ?? 0));
+		}
 } elseif ($action === 'clear_offers') {
 	$ownerId = market_seeder_player_id(trim((string)market_seeder_setting('owner', 'ADM1')));
 	if ($ownerId > 0) {
@@ -166,6 +166,8 @@ $itemsXmlOk = is_file($itemsXml);
 			Dono, modo ("so quando vazio") e importacao automatica ficam em
 			<a href="<?= ADMIN_URL ?>?p=settings">Admin &rarr; Settings &rarr; Market Seeder</a>.
 			A rotina roda automaticamente <strong>uma vez por dia</strong> (na primeira visita ao site/admin do dia).
+			A cada execucao as ofertas do dono tem a validade renovada (nao expiram) e a
+			<strong>inbox do dono e esvaziada</strong> (itens devolvidos por ofertas expiradas).
 			Ou execute agora:
 		</p>
 		<form method="post" class="mt-2 d-inline">

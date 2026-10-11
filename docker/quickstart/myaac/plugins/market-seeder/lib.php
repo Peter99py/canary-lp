@@ -158,6 +158,35 @@ function market_seeder_foreign_offer_count(int $playerId): int
 	return (int)$db->query('SELECT COUNT(*) FROM `market_offers` WHERE `player_id` <> ' . (int)$playerId)->fetchColumn();
 }
 
+/**
+ * Esvazia a inbox do depot do dono (player_inboxitems).
+ *
+ * Ofertas de venda que expiram sao devolvidas para a inbox do dono pelo engine
+ * (IOMarket::processExpiredOffers, src/io/iomarket.cpp), com FLAG_NOLIMIT. A
+ * inbox nao tem expiracao propria, entao sem esta limpeza os itens se
+ * acumulariam indefinidamente.
+ *
+ * Observacao: se o dono estiver online no momento, o servidor pode reescrever
+ * a inbox no proximo save (savePlayerInbox) e desfazer a limpeza. Mantenha o
+ * personagem dono offline (uso tipico: personagem "bot" de market).
+ *
+ * @return int quantidade de linhas removidas da inbox
+ */
+function market_seeder_clear_owner_inbox(int $ownerId): int
+{
+	global $db;
+	if ($ownerId <= 0 || !$db->hasTable('player_inboxitems')) {
+		return 0;
+	}
+
+	$count = (int)$db->query('SELECT COUNT(*) FROM `player_inboxitems` WHERE `player_id` = ' . (int)$ownerId)->fetchColumn();
+	if ($count > 0) {
+		$db->exec('DELETE FROM `player_inboxitems` WHERE `player_id` = ' . (int)$ownerId);
+	}
+
+	return $count;
+}
+
 /* ------------------------------------------------------------------ */
 /* Resolucao de itens (nome <-> id) a partir de data/items/items.xml   */
 /* ------------------------------------------------------------------ */
@@ -330,12 +359,15 @@ function market_seeder_import_defaults(): array
  * - Cada linha ativa vira `stacks` ofertas anonimas de venda do personagem dono,
  *   cada oferta com `amount` unidades (tamanho do stack).
  * - Ofertas do dono que nao estao mais na lista sao removidas.
- * - Ofertas existentes tem preco/quantidade atualizados (a validade original
- *   e preservada; ao expirar, a proxima execucao recria).
+ * - Ofertas existentes tem preco/quantidade E validade (`created`) renovados a
+ *   cada execucao: enquanto o seeder roda, elas nao expiram e os itens nao
+ *   voltam para a inbox do dono.
+ * - A inbox do dono (`player_inboxitems`) e esvaziada a cada execucao, inclusive
+ *   quando a semeadura e pulada (ofertas que expiraram caem ali).
  * - Se o numero de stacks configurado diminui, as ofertas excedentes sao
  *   removidas; se aumenta, sao criadas.
  *
- * @return array{ok:bool,inserted?:int,updated?:int,deleted?:int,skipped?:bool,message?:string}
+ * @return array{ok:bool,inserted?:int,updated?:int,deleted?:int,inbox_cleared?:int,skipped?:bool,message?:string}
  */
 function market_seeder_run(bool $force = false): array
 {
@@ -362,12 +394,18 @@ function market_seeder_run(bool $force = false): array
 	}
 
 	if (!$force && market_seeder_setting('only_when_empty', true) && market_seeder_foreign_offer_count($ownerId) > 0) {
+		// Mesmo pulando a semeadura, limpamos a inbox do dono: ofertas que
+		// expiraram enquanto havia jogadores ativos caem ali e, sem isso, se
+		// acumulariam para sempre.
+		$inboxCleared = market_seeder_clear_owner_inbox($ownerId);
+
 		return [
 			'ok' => true,
 			'skipped' => true,
 			'inserted' => 0,
 			'updated' => 0,
 			'deleted' => 0,
+			'inbox_cleared' => $inboxCleared,
 			'message' => 'Existem ofertas de outros jogadores; nada foi alterado.',
 		];
 	}
@@ -417,17 +455,20 @@ function market_seeder_run(bool $force = false): array
 		)->fetchAll(PDO::FETCH_COLUMN);
 		$existingCount = count($existing);
 
-		// Atualiza as que ja existem (mantem a validade/created original).
+		// Renova a validade (`created`) junto do preco/quantidade: enquanto o
+		// seeder roda, a oferta nao expira, entao os itens nao voltam para a inbox.
+		$created = $now - ($duration - $days * 86400);
+
+		// Atualiza as que ja existem (e renova a validade).
 		foreach ($existing as $offerId) {
 			$db->exec(
 				'UPDATE `market_offers` SET `amount` = ' . $amount . ', `price` = ' . $price .
-				', `anonymous` = 1 WHERE `id` = ' . (int)$offerId
+				', `created` = ' . $created . ', `anonymous` = 1 WHERE `id` = ' . (int)$offerId
 			);
 			$updated++;
 		}
 
 		// Cria os stacks faltantes.
-		$created = $now - ($duration - $days * 86400);
 		for ($i = $existingCount; $i < $stacks; $i++) {
 			$db->exec(
 				'INSERT INTO `market_offers` (`player_id`,`sale`,`itemtype`,`amount`,`created`,`anonymous`,`price`,`tier`) VALUES (' .
@@ -443,7 +484,9 @@ function market_seeder_run(bool $force = false): array
 		}
 	}
 
-	return ['ok' => true, 'inserted' => $inserted, 'updated' => $updated, 'deleted' => $deleted];
+	$inboxCleared = market_seeder_clear_owner_inbox($ownerId);
+
+	return ['ok' => true, 'inserted' => $inserted, 'updated' => $updated, 'deleted' => $deleted, 'inbox_cleared' => $inboxCleared];
 }
 
 /**
