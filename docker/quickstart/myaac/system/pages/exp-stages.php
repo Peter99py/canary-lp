@@ -11,6 +11,15 @@
 defined('MYAAC') or die('Direct access not allowed!');
 $title = 'Experience Stages';
 
+// Canary stores the stages in data/stages.lua (Lua table); prefer that source.
+$stagesEnabled = isset($config['lua']['rateUseStages']) && getBoolean($config['lua']['rateUseStages']);
+$luaStages = $stagesEnabled ? load_lua_stages('experienceStages') : [];
+if ($luaStages) {
+	$twig->display('experience_stages.html.twig', ['stages' => $luaStages]);
+	return;
+}
+
+// Legacy fallback: stages.xml (older TFS datapacks).
 if(file_exists($config['data_path'] . 'XML/stages.xml')) {
 	$stages = new DOMDocument();
 	$stages->load($config['data_path'] . 'XML/stages.xml');

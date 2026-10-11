@@ -34,19 +34,31 @@ require_uint "CANARY_STATUS_PORT" "$CANARY_STATUS_PORT"
 require_uint "CANARY_STATUS_TIMEOUT" "$CANARY_STATUS_TIMEOUT"
 
 # MyAAC lê a config do servidor em $server_path (default /canary/).
-# Geramos uma cópia a partir das mesmas variáveis de ambiente do compose.
+# O quickstart monta a config.lua completa do servidor em /config-src/config.lua
+# (mesmo padrão do serviço server: monta em caminho alternativo e copia, para não
+# esbarrar no `mv` do start.sh). Assim o MyAAC enxerga todos os campos que precisa.
+#
+# Depois de copiar, repetimos um conjunto de chaves de infraestrutura a partir das
+# variáveis de ambiente do compose. Como o parser do MyAAC mantém o último valor
+# de cada chave, os valores de env (ip, portas, banco, serverName) prevalecem.
+# Também adicionamos aliases com os nomes de chave que o MyAAC espera, porque o
+# Canary usa nomes diferentes: url (MyAAC) = ip (Canary); redSkullLength =
+# redSkullDuration; blackSkullLength = blackSkullDuration.
+#
 # statusProtocolPort fica entre aspas de propósito: o status.php do MyAAC resolve
 # a porta com isset($porta[0]), que dá falso para números e cairia no default
 # 7171 (porta de login). Como string, a porta de status (7173) é respeitada.
 mkdir -p /canary/data/XML
-cat > /canary/config.lua <<EOF
+cp /config-src/config.lua /canary/config.lua
+cat >> /canary/config.lua <<EOF
+
+-- Overrides do quickstart (último valor vence).
 serverName = "$(escape_lua "$CANARY_SERVER_NAME")"
 ip = "$(escape_lua "$CANARY_SERVER_IP")"
 loginProtocolPort = ${CANARY_LOGIN_PORT}
 gameProtocolPort = ${CANARY_GAME_PORT}
 statusProtocolPort = "${CANARY_STATUS_PORT}"
 statusTimeout = ${CANARY_STATUS_TIMEOUT}
-worldType = "pvp"
 dataPackDirectory = "$(escape_lua "$CANARY_DATA_PACK")"
 mysqlHost = "$(escape_lua "$CANARY_DB_HOST")"
 mysqlPort = ${CANARY_DB_PORT}
@@ -54,6 +66,18 @@ mysqlUser = "$(escape_lua "$CANARY_DB_USER")"
 mysqlPass = "$(escape_lua "$CANARY_DB_PASSWORD")"
 mysqlDatabase = "$(escape_lua "$CANARY_DB_NAME")"
 passwordType = "sha1"
+
+-- Aliases/ajustes para os nomes e unidades que o MyAAC espera. O parser do
+-- MyAAC substitui nomes de chave já lidos pelos seus valores, então estas
+-- expressões reaproveitam os valores do config do Canary.
+url = "$(escape_lua "$CANARY_SERVER_IP")"
+whiteSkullTime = whiteSkullTime / (60 * 1000)
+redSkullLength = redSkullDuration * 24 * 60 * 60
+blackSkullLength = blackSkullDuration * 24 * 60 * 60
+useBlackSkull = true
+dailyFragsToRedSkull = dayKillsToRedSkull
+weeklyFragsToRedSkull = weekKillsToRedSkull
+monthlyFragsToRedSkull = monthKillsToRedSkull
 EOF
 
 cat > /canary/data/XML/vocations.xml <<'EOF'
@@ -99,5 +123,21 @@ chown -R www-data:www-data \
     /var/www/html/system/php_sessions \
     /var/www/html/system/cache \
     /var/www/html/system/logs
+
+# Imagens. A pasta /var/www/html/images é um bind mount para
+# docker/quickstart/myaac/images no host, então o site precisa de escrita nela
+# para os uploads do editor (images/editor) e das galerias de guild/house.
+# Usamos chmod, e não chown, para não alterar o dono no host.
+mkdir -p \
+    /var/www/html/images/editor \
+    /var/www/html/images/guilds \
+    /var/www/html/images/gallery \
+    /var/www/html/images/houses
+
+chmod -R a+rwX \
+    /var/www/html/images/editor \
+    /var/www/html/images/guilds \
+    /var/www/html/images/gallery \
+    /var/www/html/images/houses
 
 exec "$@"

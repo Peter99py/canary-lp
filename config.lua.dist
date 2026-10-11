@@ -32,7 +32,7 @@ maintainModeMessage = ""
 -- NOTE: loginProtectionTime in MS
 worldType = "retro-pvp"
 hotkeyAimbotEnabled = true
-protectionLevel = 7
+protectionLevel = 30
 pzLocked = 60 * 1000
 removeChargesFromRunes = true
 removeChargesFromPotions = true
@@ -473,7 +473,7 @@ resetSessionsOnStartup = false
 -- NOTE: disableLegacyRaids: set to true to disable legacy XML raids
 allowChangeOutfit = true
 toggleMountInProtectionZone = false
-freePremium = false
+freePremium = True
 kickIdlePlayerAfterMinutes = 15
 maxMessageBuffer = 4
 toggleLearnSpells = true
@@ -567,26 +567,26 @@ sortLootByChance = false
 -- lowLevelBonusExp works up to level 50
 rateUseStages = false
 lowLevelBonusExp = 50
-rateExp = 1
-rateSkill = 1
-rateLoot = 1
-rateMagic = 1
-rateSpawn = 1
+rateExp = 5
+rateSkill = 5
+rateLoot = 5
+rateMagic = 5
+rateSpawn = 2
 
 -- Killing in the name of Quest
 rateKillingInTheNameOfPoints = 1
 
 -- Today regeneration condition over an loop every 1 second,
 -- So values which should regenerated less then 1 second or won't will work
-rateHealthRegen = 1.0
-rateHealthRegenSpeed = 1.0
-rateManaRegen = 1.0
-rateManaRegenSpeed = 1.0
-rateSoulRegen = 1.0
-rateSoulRegenSpeed = 1.0
+rateHealthRegen = 2.0
+rateHealthRegenSpeed = 2.0
+rateManaRegen = 2.0
+rateManaRegenSpeed = 2.0
+rateSoulRegen = 2.0
+rateSoulRegenSpeed = 2.0
 
-rateSpellCooldown = 1.0
-rateAttackSpeed = 1.0
+rateSpellCooldown = 1.5
+rateAttackSpeed = 1.5
 rateOfflineTrainingSpeed = rateAttackSpeed
 rateExerciseTrainingSpeed = rateAttackSpeed
 
@@ -625,8 +625,8 @@ defaultPriority = "high"
 startupDatabaseOptimization = true
 
 -- Status server information
-ownerName = "OpenTibiaBR"
-ownerEmail = "opentibiabr@outlook.com"
+ownerName = "Peter99py"
+ownerEmail = "peter99py.dev@gmail.com"
 url = "http://docs.opentibiabr.com/"
 location = "South America"
 
@@ -677,7 +677,7 @@ metricsOstreamInterval = 1000
 -- NOTE: Features added in this list will be forced to be used on OTCR
 -- These features can be found in "modules/gamelib/const.lua"
 OTCRFeatures = {
-    enableFeature = { 
+    enableFeature = {
         101, -- g_game.enableFeature(GameItemShader)
         102, -- g_game.enableFeature(GameCreatureAttachedEffect)
         103, -- g_game.enableFeature(GameCreatureShader)

@@ -95,6 +95,10 @@ services:
       MYAAC_STATUS_IP: "${MYAAC_STATUS_IP:-server}"
     ports:
       - '${MYAAC_HTTP_PORT:-8080}:80'
+    volumes:
+      - './quickstart/myaac/images:/var/www/html/images'
+      - '../config.lua:/config-src/config.lua:ro'
+      - '../data/stages.lua:/canary/data/stages.lua:ro'
     networks:
       - canary-net
     depends_on:

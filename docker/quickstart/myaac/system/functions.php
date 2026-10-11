@@ -1093,6 +1093,43 @@ function load_config_lua($filename)
 	return array_merge($result, $config['lua'] ?? []);
 }
 
+/**
+ * Reads a stages table from the server's data/stages.lua (Canary Lua format).
+ *
+ * @param string $variable One of experienceStages, skillsStages, magicLevelStages.
+ * @return array<int, array{levels: string, multiplier: string}>
+ */
+function load_lua_stages(string $variable): array
+{
+	global $config;
+
+	$file = ($config['data_path'] ?? '') . 'stages.lua';
+	if (!is_file($file)) {
+		return [];
+	}
+
+	$content = file_get_contents($file);
+	if (!preg_match('/' . preg_quote($variable, '/') . '\s*=\s*\{(.*?)\n\}/s', $content, $block)) {
+		return [];
+	}
+
+	if (!preg_match_all('/minlevel\s*=\s*(\d+)\s*,\s*(?:maxlevel\s*=\s*(\d+)\s*,\s*)?multiplier\s*=\s*(\d+)/', $block[1], $matches, PREG_SET_ORDER)) {
+		return [];
+	}
+
+	$stages = [];
+	foreach ($matches as $stage) {
+		$from = $stage[1];
+		$to = $stage[2] ?? '';
+		$stages[] = [
+			'levels' => $to !== '' ? $from . '-' . $to : $from . '+',
+			'multiplier' => $stage[3],
+		];
+	}
+
+	return $stages;
+}
+
 function str_replace_first($search,$replace, $subject) {
 	$pos = strpos($subject, $search);
 	if ($pos !== false) {

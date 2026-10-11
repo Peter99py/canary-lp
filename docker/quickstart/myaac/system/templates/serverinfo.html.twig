@@ -1,9 +1,6 @@
 <div style="text-align:center">
     <h1>{{ config.lua.serverName }}</h1>
     <h3>
-        {%  if experienceStages %}
-        Experience stages: {{ experienceStages }}<br>
-        {%  endif %}
         Commands: <a href="{{ getLink('commands') }}">Look here</a><br>
         Team: <a href="{{ getLink('team') }}">Look here</a><br>
     </h3>
@@ -26,18 +23,42 @@
     {%  endif %}
 
     <h2>Rates</h2>
-    {%  if rateExp is defined %}
+    {%  if experienceStages %}
+    <li>Experience stages:
+        <ul>
+            {%  for stage in experienceStages %}
+            <li>Levels <b>{{ stage.levels }}</b>: x<b>{{ stage.multiplier }}</b></li>
+            {%  endfor %}
+        </ul>
+    </li>
+    {%  elseif not stagesEnabled %}
     <li>Exp Rate: <b>x{{ rateExp }}</b></li>
     {%  endif %}
     {%  if rateExpFromPlayers %}
-        <li>Exp Rate from Players: <b>x{{ rateExpFromPlayers }}</b></li>
+    <li>Exp Rate from Players: <b>x{{ rateExpFromPlayers }}</b></li>
     {%  endif %}
-    {%  if rateMagic is defined %}
+    {%  if magicLevelStages %}
+    <li>Magic level stages:
+        <ul>
+            {%  for stage in magicLevelStages %}
+            <li>Levels <b>{{ stage.levels }}</b>: x<b>{{ stage.multiplier }}</b></li>
+            {%  endfor %}
+        </ul>
+    </li>
+    {%  elseif not stagesEnabled %}
     <li>Magic Level: <b>x{{ rateMagic }}</b></li>
     {%  endif %}
-    {%  if rateSkill is defined %}
+    {%  if skillStages %}
+    <li>Skill stages:
+        <ul>
+            {%  for stage in skillStages %}
+            <li>Levels <b>{{ stage.levels }}</b>: x<b>{{ stage.multiplier }}</b></li>
+            {%  endfor %}
+        </ul>
+    </li>
+    {%  elseif not stagesEnabled %}
     <li>Skills: <b>x{{ rateSkill }}</b></li>
-    {% endif %}
+    {%  endif %}
     {%  if rateLoot is defined %}
     <li>Loot: <b>x{{ rateLoot }}</b></li>
     {%  endif %}

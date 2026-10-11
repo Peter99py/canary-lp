@@ -78,8 +78,19 @@ $clientVersion = NULL;
 if(isset($status['online']))
     $clientVersion = isset($status['clientVersion']) ? $status['clientVersion'] : null;
 
+// Canary keeps the stages in data/stages.lua. Show them when enabled, and hide
+// the flat rates they replace (skills/magic level are only shown separately when
+// their tables differ from the experience one).
+$stagesEnabled = isset($config['lua']['rateUseStages']) && getBoolean($config['lua']['rateUseStages']);
+$experienceStages = $stagesEnabled ? load_lua_stages('experienceStages') : [];
+$skillStages = $stagesEnabled ? load_lua_stages('skillsStages') : [];
+$magicLevelStages = $stagesEnabled ? load_lua_stages('magicLevelStages') : [];
+
 $twig->display('serverinfo.html.twig', array(
-    'experienceStages' => isset($config['lua']['experienceStages']) && getBoolean($config['lua']['experienceStages']) ? $config['lua']['experienceStages'] : null,
+    'experienceStages' => $experienceStages,
+    'skillStages' => ($skillStages && $skillStages !== $experienceStages) ? $skillStages : [],
+    'magicLevelStages' => ($magicLevelStages && $magicLevelStages !== $experienceStages) ? $magicLevelStages : [],
+    'stagesEnabled' => $stagesEnabled,
     'serverIp' => str_replace('/', '', str_replace('http://', '', $config['lua']['url'])),
     'clientVersion' => $clientVersion,
     'globalSaveHour' => isset($config['lua']['globalSaveEnabled']) && getBoolean($config['lua']['globalSaveEnabled']) ? $config['lua']['globalSaveHour'] : null,

@@ -5,19 +5,34 @@
 # docker/. Por isso ele é o lugar seguro para customizações locais: o
 # docker-compose.yml é reescrito pelo workflow de release do Canary, este não.
 #
-# Aqui: desliga o aprendizado obrigatório de spells no servidor
-# (toggleLearnSpells = false em /canary/config.lua). Assim as spells passam a
-# valer por nível/vocação, sem precisar ir a um NPC treinador — útil em servidor
-# de teste quando o level é alterado direto pelo admin do MyAAC.
+# Aqui:
 #
-# O ajuste roda ANTES do /canary/start.sh, que apenas reescreve um conjunto fixo
-# de chaves (e não mexe em toggleLearnSpells), então a alteração é preservada.
+# 1) Copia o config.lua do repositório (../config.lua) para dentro do container
+#    antes do start.sh. O arquivo é montado em /config-src e não direto em
+#    /canary/config.lua, porque o start.sh substitui o arquivo via `mv`, o que
+#    quebra bind mount de arquivo único. Copiando, /canary/config.lua continua
+#    sendo um arquivo normal e as edições do repositório (rates, etc.) passam a
+#    valer. O start.sh ainda sobrescreve as chaves de infraestrutura (ip, portas,
+#    banco, serverName) a partir das variáveis de ambiente.
+#
+# 2) Desliga o aprendizado obrigatório de spells (toggleLearnSpells = false em
+#    /canary/config.lua). Assim as spells passam a valer por nível/vocação, sem
+#    precisar ir a um NPC treinador — útil em servidor de teste quando o level é
+#    alterado direto pelo admin do MyAAC.
+#
+# Os dois ajustes rodam ANTES do /canary/start.sh, que apenas reescreve um
+# conjunto fixo de chaves (e não mexe nos rates nem em toggleLearnSpells), então
+# as alterações são preservadas.
 services:
   server:
+    volumes:
+      - '../config.lua:/config-src/config.lua:ro'
+      - '../data/stages.lua:/canary/data/stages.lua:ro'
     entrypoint:
       - /bin/sh
       - -c
       - >-
+        cp /config-src/config.lua /canary/config.lua;
         sed -i -E 's/^[[:space:]]*toggleLearnSpells[[:space:]]*=.*/toggleLearnSpells = false/' /canary/config.lua || true;
         grep -qE '^[[:space:]]*toggleLearnSpells' /canary/config.lua || echo 'toggleLearnSpells = false' >>/canary/config.lua;
         exec /canary/start.sh
