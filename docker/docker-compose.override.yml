@@ -27,6 +27,13 @@
 #    itens de data_path/items/items.xml (ver system/src/Items.php); sem isso o
 #    plugin market-seeder nao consegue resolver nome -> id. Montamos apenas o
 #    items.xml (nao o datapack inteiro).
+#
+# 4) Liga o crond do container e agenda o market-seeder as 03:00 (horario local),
+#    via crontab do root. O crond do busybox so executa o crontab do root, entao
+#    a entrada chama um wrapper que roda o PHP como www-data (para o cache/log
+#    ficar com o dono do php-fpm). O fuso do container e fixado via TZ (nao ha
+#    tzdata; usamos o formato POSIX: America/Fortaleza = UTC-3, sem horario de
+#    verao).
 services:
   server:
     volumes:
@@ -42,5 +49,17 @@ services:
         exec /canary/start.sh
 
   myaac:
+    environment:
+      # Fuso do container (afeta o horario do cron). UTC-3 = America/Fortaleza.
+      TZ: "${MYAAC_TZ:-BRT3}"
     volumes:
       - '../data/items/items.xml:/canary/data/items/items.xml:ro'
+      - './quickstart/myaac/market-seeder-cron.sh:/cron-src/market-seeder-cron.sh:ro'
+    command:
+      - sh
+      - -c
+      - >-
+        install -m 755 /cron-src/market-seeder-cron.sh /usr/local/bin/market-seeder-cron.sh;
+        grep -q 'market-seeder-cron.sh' /etc/crontabs/root || printf '\n0 3 * * * /usr/local/bin/market-seeder-cron.sh\n' >> /etc/crontabs/root;
+        crond -b -l 8 -L /var/www/html/system/logs/crond.log;
+        nginx && exec php-fpm

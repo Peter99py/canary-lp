@@ -30,8 +30,28 @@ $command = new class extends Command {
 		require_once PLUGINS . 'market-seeder/lib.php';
 
 		$io = new SymfonyStyle($input, $output);
+		$force = (bool)$input->getOption('force');
 
-		$result = market_seeder_run((bool)$input->getOption('force'));
+		if ($force) {
+			$result = market_seeder_run(true);
+		} else {
+			// Caminho do cron: respeita a guarda diaria (horario + data + lock),
+			// para nao competir com o fallback por visita.
+			$before = market_seeder_state_get('last_run');
+			market_seeder_maybe_run_daily();
+			if (market_seeder_state_get('last_run') === $before) {
+				$io->info('Nada executado (a rotina diaria ja rodou hoje ou esta fora do horario das 03:00).');
+				return Command::SUCCESS;
+			}
+
+			$raw = market_seeder_state_get('last_result');
+			$result = $raw ? json_decode($raw, true) : null;
+			if (!is_array($result)) {
+				$io->info('Nada executado.');
+				return Command::SUCCESS;
+			}
+		}
+
 		if (empty($result['ok'])) {
 			$io->warning($result['message'] ?? 'Nada foi feito.');
 			return Command::SUCCESS;

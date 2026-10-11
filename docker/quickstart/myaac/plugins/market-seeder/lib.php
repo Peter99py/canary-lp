@@ -419,6 +419,14 @@ function market_seeder_run(bool $force = false): array
 function market_seeder_maybe_run_daily(): void
 {
 	$today = date('Y-m-d');
+
+	// Fallback por visita: so roda a partir das 03:00 locais (mesmo horario do
+	// crontab), para nao antecipar a execucao diaria agendada. O caminho normal e
+	// o cron do container (03:00); este cobre o caso de o cron nao ter rodado.
+	if ((int)date('G') < 3) {
+		return;
+	}
+
 	if (market_seeder_state_get('last_run') === $today) {
 		return;
 	}
