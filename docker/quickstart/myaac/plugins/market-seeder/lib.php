@@ -22,6 +22,14 @@ function market_seeder_table(string $suffix): string
 /** Cria as tabelas auxiliares do plugin, se ainda nao existirem. */
 function market_seeder_ensure_tables(): void
 {
+	// Executa uma vez por requisicao: evita repetir hasTable/hasColumn e, no caso
+	// do ALTER, evita re-tentar com o cache (possivelmente desatualizado) do MyAAC.
+	static $done = false;
+	if ($done) {
+		return;
+	}
+	$done = true;
+
 	global $db;
 
 	if (!$db->hasTable(market_seeder_table('items'))) {
@@ -34,10 +42,18 @@ function market_seeder_ensure_tables(): void
 			'`price` BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,' .
 			'`tier` TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,' .
 			'`days` INT(11) NOT NULL DEFAULT 30,' .
+			'`stacks` INT(11) NOT NULL DEFAULT 1,' .
 			'`enabled` TINYINT(1) NOT NULL DEFAULT 1,' .
 			'PRIMARY KEY (`id`), KEY `item_id` (`item_id`), KEY `enabled` (`enabled`)' .
 			') ENGINE=InnoDB DEFAULT CHARSET=utf8;'
 		);
+	} elseif (!$db->hasColumn(market_seeder_table('items'), 'stacks')) {
+		// Migracao: adiciona a coluna stacks em tabelas ja existentes.
+		try {
+			$db->exec('ALTER TABLE `' . market_seeder_table('items') . '` ADD `stacks` INT(11) NOT NULL DEFAULT 1 AFTER `days`');
+		} catch (\Throwable $e) {
+			// Coluna ja existe (corrida entre requisicoes); ignora.
+		}
 	}
 
 	if (!$db->hasTable(market_seeder_table('state'))) {
@@ -231,7 +247,9 @@ function market_seeder_resolve_item(string $input): array
 /* ------------------------------------------------------------------ */
 
 /**
- * Importa linhas no formato: nome_ou_id;quantidade;preco;tier;dias
+ * Importa linhas no formato: nome_ou_id;quantidade;preco;tier;dias[;stacks]
+ * - quantidade = unidades por oferta (tamanho do stack)
+ * - stacks = numero de ofertas (stacks) no market (opcional, padrao 1)
  * Linhas vazias e comecando por '#' sao ignoradas.
  * Itens ja existentes (mesmo item_id + tier) sao ignorados, para nao duplicar.
  * @return array{imported:int,missing:array<int,string>,skipped:int}
@@ -261,6 +279,7 @@ function market_seeder_import_text(string $text): array
 		$price = max(0, (int)($parts[2] ?? 0));
 		$tier = max(0, (int)($parts[3] ?? 0));
 		$days = max(1, (int)($parts[4] ?? 30));
+		$stacks = max(1, (int)($parts[5] ?? 1));
 
 		[$itemId, $name] = market_seeder_resolve_item($target);
 		if ($itemId <= 0) {
@@ -281,8 +300,8 @@ function market_seeder_import_text(string $text): array
 		}
 
 		$db->query(
-			'INSERT INTO `' . market_seeder_table('items') . '` (`item_id`,`name`,`amount`,`price`,`tier`,`days`,`enabled`) VALUES (' .
-			(int)$itemId . ',' . $db->quote($name) . ',' . $amount . ',' . $price . ',' . $tier . ',' . $days . ',1)'
+			'INSERT INTO `' . market_seeder_table('items') . '` (`item_id`,`name`,`amount`,`price`,`tier`,`days`,`stacks`,`enabled`) VALUES (' .
+			(int)$itemId . ',' . $db->quote($name) . ',' . $amount . ',' . $price . ',' . $tier . ',' . $days . ',' . $stacks . ',1)'
 		);
 		$imported++;
 	}
@@ -308,10 +327,13 @@ function market_seeder_import_defaults(): array
 /**
  * Sincroniza o market com a lista configurada.
  *
- * - Cada linha ativa vira uma oferta anonima de venda do personagem dono.
+ * - Cada linha ativa vira `stacks` ofertas anonimas de venda do personagem dono,
+ *   cada oferta com `amount` unidades (tamanho do stack).
  * - Ofertas do dono que nao estao mais na lista sao removidas.
  * - Ofertas existentes tem preco/quantidade atualizados (a validade original
  *   e preservada; ao expirar, a proxima execucao recria).
+ * - Se o numero de stacks configurado diminui, as ofertas excedentes sao
+ *   removidas; se aumenta, sao criadas.
  *
  * @return array{ok:bool,inserted?:int,updated?:int,deleted?:int,skipped?:bool,message?:string}
  */
@@ -386,27 +408,39 @@ function market_seeder_run(bool $force = false): array
 		$price = max(0, (int)$row['price']);
 		$days = max(1, min($maxDays, (int)$row['days']));
 
+		$stacks = max(1, (int)$row['stacks']);
+
+		// Ofertas existentes deste item/tier (o dono pode ter N stacks no market).
 		$existing = $db->query(
 			'SELECT `id` FROM `market_offers` WHERE `player_id` = ' . $ownerId .
-			' AND `itemtype` = ' . $itemId . ' AND `tier` = ' . $tier . ' LIMIT 1'
-		)->fetch(PDO::FETCH_ASSOC);
+			' AND `itemtype` = ' . $itemId . ' AND `tier` = ' . $tier . ' ORDER BY `id`'
+		)->fetchAll(PDO::FETCH_COLUMN);
+		$existingCount = count($existing);
 
-		if ($existing) {
+		// Atualiza as que ja existem (mantem a validade/created original).
+		foreach ($existing as $offerId) {
 			$db->exec(
 				'UPDATE `market_offers` SET `amount` = ' . $amount . ', `price` = ' . $price .
-				', `anonymous` = 1 WHERE `id` = ' . (int)$existing['id']
+				', `anonymous` = 1 WHERE `id` = ' . (int)$offerId
 			);
 			$updated++;
-			continue;
 		}
 
-		// created recuado para que a oferta expire em "days" (expiry = created + duration).
+		// Cria os stacks faltantes.
 		$created = $now - ($duration - $days * 86400);
-		$db->exec(
-			'INSERT INTO `market_offers` (`player_id`,`sale`,`itemtype`,`amount`,`created`,`anonymous`,`price`,`tier`) VALUES (' .
-			$ownerId . ',1,' . $itemId . ',' . $amount . ',' . $created . ',1,' . $price . ',' . $tier . ')'
-		);
-		$inserted++;
+		for ($i = $existingCount; $i < $stacks; $i++) {
+			$db->exec(
+				'INSERT INTO `market_offers` (`player_id`,`sale`,`itemtype`,`amount`,`created`,`anonymous`,`price`,`tier`) VALUES (' .
+				$ownerId . ',1,' . $itemId . ',' . $amount . ',' . $created . ',1,' . $price . ',' . $tier . ')'
+			);
+			$inserted++;
+		}
+
+		// Remove stacks em excesso (se o numero configurado diminuiu).
+		for ($i = $stacks; $i < $existingCount; $i++) {
+			$db->exec('DELETE FROM `market_offers` WHERE `id` = ' . (int)$existing[$i]);
+			$deleted++;
+		}
 	}
 
 	return ['ok' => true, 'inserted' => $inserted, 'updated' => $updated, 'deleted' => $deleted];

@@ -23,6 +23,7 @@ if ($action === 'save_all') {
 	$prices = $_POST['price'] ?? [];
 	$tiers = $_POST['tier'] ?? [];
 	$daysArr = $_POST['days'] ?? [];
+	$stacksArr = $_POST['stacks'] ?? [];
 	$enabled = $_POST['enabled'] ?? [];
 	$deletes = $_POST['delete'] ?? [];
 
@@ -55,6 +56,7 @@ if ($action === 'save_all') {
 		$price = max(0, (int)($prices[$id] ?? 0));
 		$tier = max(0, (int)($tiers[$id] ?? 0));
 		$days = max(1, (int)($daysArr[$id] ?? 30));
+		$stacks = max(1, (int)($stacksArr[$id] ?? 1));
 		$isEnabled = isset($enabled[$id]) ? 1 : 0;
 
 		$db->query(
@@ -64,6 +66,7 @@ if ($action === 'save_all') {
 			', `price` = ' . $price .
 			', `tier` = ' . $tier .
 			', `days` = ' . $days .
+			', `stacks` = ' . $stacks .
 			', `enabled` = ' . $isEnabled .
 			' WHERE `id` = ' . $id
 		);
@@ -91,9 +94,10 @@ if ($action === 'save_all') {
 		$price = max(0, (int)($_POST['price'] ?? 0));
 		$tier = max(0, (int)($_POST['tier'] ?? 0));
 		$days = max(1, (int)($_POST['days'] ?? 30));
+		$stacks = max(1, (int)($_POST['stacks'] ?? 1));
 		$db->query(
-			'INSERT INTO `' . market_seeder_table('items') . '` (`item_id`,`name`,`amount`,`price`,`tier`,`days`,`enabled`) VALUES (' .
-			$itemId . ',' . $db->quote($name) . ',' . $amount . ',' . $price . ',' . $tier . ',' . $days . ',1)'
+			'INSERT INTO `' . market_seeder_table('items') . '` (`item_id`,`name`,`amount`,`price`,`tier`,`days`,`stacks`,`enabled`) VALUES (' .
+			$itemId . ',' . $db->quote($name) . ',' . $amount . ',' . $price . ',' . $tier . ',' . $days . ',' . $stacks . ',1)'
 		);
 		success('Item adicionado: ' . htmlspecialchars($name) . ' (id ' . $itemId . ').');
 	}
@@ -137,7 +141,7 @@ $ownOffers = $ownerId > 0 ? market_seeder_own_offer_count($ownerId) : 0;
 $lastRunAt = market_seeder_state_get('last_run_at', '-');
 $itemsXml = ($config['data_path'] ?? '') . 'items/items.xml';
 $itemsXmlOk = is_file($itemsXml);
-$listInputPlaceholder = "Vampire Teeth;25;1400;0;30\nBloody Pincers;15;4200;0;30";
+	$listInputPlaceholder = "Vampire Teeth;25;1400;0;30;1\nDiamond Arrow;100;15000;0;30;2";
 ?>
 
 <h2>Market Seeder</h2>
@@ -186,12 +190,13 @@ $listInputPlaceholder = "Vampire Teeth;25;1400;0;30\nBloody Pincers;15;4200;0;30
 			<thead>
 				<tr>
 					<th style="width:26%">Item (nome ou id)</th>
-					<th style="width:10%">Qtd</th>
-					<th style="width:14%">Pre&ccedil;o (un.)</th>
-					<th style="width:8%">Tier</th>
-					<th style="width:10%">Dias</th>
-					<th style="width:8%">Ativo</th>
-					<th style="width:10%">Remover</th>
+					<th style="width:8%">Stack</th>
+					<th style="width:12%">Pre&ccedil;o (un.)</th>
+					<th style="width:7%">Tier</th>
+					<th style="width:8%">Dias</th>
+					<th style="width:11%">Stacks</th>
+					<th style="width:7%">Ativo</th>
+					<th style="width:9%">Remover</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -202,16 +207,17 @@ $listInputPlaceholder = "Vampire Teeth;25;1400;0;30\nBloody Pincers;15;4200;0;30
 						<input type="text" class="form-control form-control-sm" name="item[<?= $id ?>]" value="<?= htmlspecialchars((string)$item['name']) ?>">
 						<small class="text-muted">id <?= (int)$item['item_id'] ?></small>
 					</td>
-					<td><input type="number" min="1" class="form-control form-control-sm" name="amount[<?= $id ?>]" value="<?= (int)$item['amount'] ?>"></td>
+					<td><input type="number" min="1" class="form-control form-control-sm" name="amount[<?= $id ?>]" value="<?= (int)$item['amount'] ?>" title="Unidades por oferta (tamanho do stack)"></td>
 					<td><input type="number" min="0" class="form-control form-control-sm" name="price[<?= $id ?>]" value="<?= (int)$item['price'] ?>"></td>
 					<td><input type="number" min="0" class="form-control form-control-sm" name="tier[<?= $id ?>]" value="<?= (int)$item['tier'] ?>"></td>
 					<td><input type="number" min="1" class="form-control form-control-sm" name="days[<?= $id ?>]" value="<?= (int)$item['days'] ?>"></td>
+					<td><input type="number" min="1" class="form-control form-control-sm" name="stacks[<?= $id ?>]" value="<?= (int)($item['stacks'] ?? 1) ?>" title="Numero de ofertas (stacks) no market"></td>
 					<td class="text-center"><input type="checkbox" name="enabled[<?= $id ?>]" value="1" <?= ((int)$item['enabled'] === 1 ? 'checked' : '') ?>></td>
 					<td class="text-center"><input type="checkbox" name="delete[<?= $id ?>]" value="1"></td>
 				</tr>
 			<?php endforeach; ?>
 			<?php if (empty($items)): ?>
-				<tr><td colspan="7" class="text-center text-muted">Nenhum item. Adicione abaixo ou importe a lista padrao.</td></tr>
+				<tr><td colspan="8" class="text-center text-muted">Nenhum item. Adicione abaixo ou importe a lista padrao.</td></tr>
 			<?php endif; ?>
 			</tbody>
 		</table>
@@ -224,16 +230,18 @@ $listInputPlaceholder = "Vampire Teeth;25;1400;0;30\nBloody Pincers;15;4200;0;30
 	<?php csrf(); ?>
 	<input type="hidden" name="action" value="add">
 	<input type="text" class="form-control mb-2 mr-2" name="item" placeholder="Nome do item ou id" required>
-	<input type="number" min="1" class="form-control mb-2 mr-2" name="amount" value="1" title="Quantidade" placeholder="Qtd">
+	<input type="number" min="1" class="form-control mb-2 mr-2" name="amount" value="1" title="Unidades por oferta" placeholder="Stack">
 	<input type="number" min="0" class="form-control mb-2 mr-2" name="price" value="0" title="Preco por unidade" placeholder="Preco">
 	<input type="number" min="0" class="form-control mb-2 mr-2" name="tier" value="0" title="Tier" placeholder="Tier">
 	<input type="number" min="1" class="form-control mb-2 mr-2" name="days" value="30" title="Dias no market" placeholder="Dias">
+	<input type="number" min="1" class="form-control mb-2 mr-2" name="stacks" value="1" title="Numero de ofertas (stacks)" placeholder="Stacks">
 	<button type="submit" class="btn btn-success mb-2"><i class="fas fa-plus"></i> Adicionar</button>
 </form>
 
 <h3 class="mt-4">Importar lista em massa</h3>
 <p class="text-muted">
-	Uma linha por item, no formato <code>nome;quantidade;preco;tier;dias</code> (ou <code>id;...</code>).
+	Uma linha por item, no formato <code>nome;stack;preco;tier;dias;stacks</code> (ou <code>id;...</code>).
+	<code>stack</code> = unidades por oferta; <code>stacks</code> = quantas ofertas (opcional, padrao 1).
 	Linhas em branco e com <code>#</code> s&atilde;o ignoradas. Itens n&atilde;o encontrados s&atilde;o listados e n&atilde;o importados.
 </p>
 <form method="post">
