@@ -438,12 +438,12 @@ foreach($config['menu_categories'] as $id => $cat) {
           <div id="RightArtwork">
             <img id="Monster" src="images/monsters/<?php echo logo_monster() ?>.gif" onClick="window.location = '?subtopic=creatures&creature=<?php echo $config['logo_monster'] ?>';" alt="Monster of the Week" />
             <img id="PedestalAndOnline" src="<?php echo $template_path; ?>/images/header/pedestal-and-online.gif" alt="Monster Pedestal and Players Online Box"/>
-          <div id="PlayersOnline" onClick="window.location = '<?php echo getLink('online'); ?>'">
+          <div id="PlayersOnline">
 		  <?php
 			if($status['online'])
-				echo '<div id="players" style="display: inline;">' . $status['players'] . '</div><br>Players Online';
+				echo '<span style="color: green"><b>Servidor<br />Online</b></span>';
 			else
-				echo '<span style="color: red"><b>Server<br />OFFLINE</b></span>';
+				echo '<span style="color: red"><b>Servidor<br />Offline</b></span>';
 			?></div>
         </div>
 

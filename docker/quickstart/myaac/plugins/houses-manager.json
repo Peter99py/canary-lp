@@ -1,0 +1,17 @@
+{
+	"name": "Houses Manager",
+	"description": "Gerencia as casas pelo painel do admin (admin/?p=houses): une o XML do mapa (otservbr-house.xml: rent, nome, tamanho, camas, guildhall, townid, clientid) e a tabela OT `houses` (owner, estado, leilao). Permite editar rent e regenerar o houses.json do client na raiz do site. Nao mexe no core do MyAAC.",
+	"version": "1.1",
+	"author": "silverlake-ot",
+	"contact": "admin@localhost",
+	"hooks": {
+		"houses-manager-admin": {
+			"type": "ADMIN_BEFORE_PAGE",
+			"file": "plugins/houses-manager/hook.php"
+		}
+	},
+	"uninstall": [
+		"plugins/houses-manager.json",
+		"plugins/houses-manager"
+	]
+}

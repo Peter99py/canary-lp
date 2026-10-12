@@ -15,7 +15,6 @@ return [
 	],
 	MENU_CATEGORY_COMMUNITY => [
 		'Personagens' => 'characters',
-		'Quem está online?' => 'online',
 		'Ranking' => 'highscores',
 		'Últimas Mortes' => 'last-kills',
 		'Casas' => 'houses',

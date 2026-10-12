@@ -80,6 +80,8 @@ plugins/*
 !plugins/market-seeder
 !plugins/give-item.json
 !plugins/give-item
+!plugins/houses-manager.json
+!plugins/houses-manager
 landing
 
 # system

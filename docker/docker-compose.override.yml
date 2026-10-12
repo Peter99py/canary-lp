@@ -34,6 +34,15 @@
 #    ficar com o dono do php-fpm). O fuso do container e fixado via TZ (nao ha
 #    tzdata; usamos o formato POSIX: America/Fortaleza = UTC-3, sem horario de
 #    verao).
+#
+# 5) Monta o otservbr-house.xml do repositorio (read-write) no container do myaac,
+#    no mesmo diretorio-base dos itens (data_path = /canary/data/). Assim o plugin
+#    houses-manager le e grava $config['data_path'] . 'world/otservbr-house.xml'
+#    para listar/editar as casas (rent/nome/tamanho/camas) e regenerar o
+#    houses.json na raiz web. E read-write porque o admin grava o XML; o entrypoint
+#    do myaac ajusta a permissao do arquivo para o worker do php-fpm (www-data).
+#    Montar (em vez de copiar no build) mantem o arquivo sempre em sincronia com o
+#    repositorio, sem rebuild.
 services:
   server:
     volumes:
@@ -60,6 +69,7 @@ services:
       TZ: "${MYAAC_TZ:-BRT3}"
     volumes:
       - '../data/items/items.xml:/canary/data/items/items.xml:ro'
+      - '../data-otservbr-global/world/otservbr-house.xml:/canary/data/world/otservbr-house.xml:rw'
       - './quickstart/myaac/market-seeder-cron.sh:/cron-src/market-seeder-cron.sh:ro'
     command:
       - sh

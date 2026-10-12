@@ -140,4 +140,15 @@ chmod -R a+rwX \
     /var/www/html/images/gallery \
     /var/www/html/images/houses
 
+# Houses (plugin houses-manager). O XML de casas e montado read-write em
+# /canary/data/world/otservbr-house.xml; o entrypoint roda como root e libera a
+# escrita para o worker do php-fpm (www-data). O houses.json gerado e servido na
+# raiz do site (https://.../houses.json), entao precisa existir e ser gravavel.
+if [ -f /canary/data/world/otservbr-house.xml ]; then
+    chmod a+rw /canary/data/world/otservbr-house.xml || true
+fi
+
+touch /var/www/html/houses.json
+chmod a+rw /var/www/html/houses.json
+
 exec "$@"
