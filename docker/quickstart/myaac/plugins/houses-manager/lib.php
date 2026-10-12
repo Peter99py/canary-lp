@@ -244,10 +244,10 @@ function houses_manager_xml_update(int $houseId, array $changes): bool
 }
 
 /**
- * Gera o catalogo houses.json (client) a partir do XML e grava na raiz web.
- * @return array{ok:bool,count:int,path:string}
+ * Monta o catalogo do client (clientId => dados) a partir do XML do mapa.
+ * @return array<string,array<string,mixed>>
  */
-function houses_manager_generate_json(): array
+function houses_manager_catalog(): array
 {
 	$out = [];
 	foreach (houses_manager_xml_read() as $id => $info) {
@@ -269,6 +269,16 @@ function houses_manager_generate_json(): array
 		];
 	}
 
+	return $out;
+}
+
+/**
+ * Gera o catalogo houses.json (client) a partir do XML e grava na raiz web.
+ * @return array{ok:bool,count:int,path:string}
+ */
+function houses_manager_generate_json(): array
+{
+	$out = houses_manager_catalog();
 	$path = houses_manager_json_path();
 	$ok = @file_put_contents($path, json_encode($out, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n") !== false;
 
