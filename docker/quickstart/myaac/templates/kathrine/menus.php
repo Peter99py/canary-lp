@@ -15,7 +15,7 @@ return [
 	],
 	MENU_CATEGORY_COMMUNITY => [
 		'Characters' => 'characters',
-		'Who is Online?' => 'online',
+		#'Who is Online?' => 'online',
 		'Highscores' => 'highscores',
 		'Last Kills' => 'last-kills',
 		'Houses' => 'houses',
