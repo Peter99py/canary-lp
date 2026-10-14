@@ -488,7 +488,20 @@ else if (isset($_REQUEST['search'])) {
 										<?php
 											$accountActions = \MyAAC\Models\AccountAction::where('account_id', $account->getId())->orderByDesc('date')->get();
 											foreach ($accountActions as $i => $log):
-												$log->ip = ($log->ip != 0 ? long2ip($log->ip) : inet_ntop($log->ipv6));
+												$logIp = '-';
+												if (!empty($log->ip)) {
+													if (filter_var($log->ip, FILTER_VALIDATE_IP)) {
+														$logIp = $log->ip;
+													} elseif (is_numeric($log->ip) && (int)$log->ip != 0) {
+														$logIp = long2ip((int)$log->ip);
+													}
+												} elseif (!empty($log->ipv6) && $log->ipv6 != '0') {
+													$converted = @inet_ntop($log->ipv6);
+													if ($converted !== false) {
+														$logIp = $converted;
+													}
+												}
+												$log->ip = $logIp;
 												?>
 											<tr>
 												<td><?php echo $i + 1; ?></td>

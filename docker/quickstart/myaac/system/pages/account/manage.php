@@ -98,7 +98,20 @@ if($email_new_time > 1)
 
 $actions = array();
 foreach($account_logged->getActionsLog(0, 1000) as $action) {
-	$actions[] = array('action' => $action['action'], 'date' => $action['date'], 'ip' => $action['ip'] != 0 ? long2ip($action['ip']) : inet_ntop($action['ipv6']));
+	$ip = '-';
+	if (!empty($action['ip'])) {
+		if (filter_var($action['ip'], FILTER_VALIDATE_IP)) {
+			$ip = $action['ip'];
+		} elseif (is_numeric($action['ip']) && (int)$action['ip'] != 0) {
+			$ip = long2ip((int)$action['ip']);
+		}
+	} elseif (!empty($action['ipv6']) && $action['ipv6'] != '0') {
+		$converted = @inet_ntop($action['ipv6']);
+		if ($converted !== false) {
+			$ip = $converted;
+		}
+	}
+	$actions[] = array('action' => $action['action'], 'date' => $action['date'], 'ip' => $ip);
 }
 
 $players = array();
