@@ -15,7 +15,7 @@ echo "Frequência cron: ${BACKUP_CRON:-0 4 * * *}"
 echo "Bucket destino: ${R2_BUCKET}"
 
 # Exportar variáveis de ambiente para o cron
-env | grep -E '^(CANARY_|R2_|BACKUP_|AWS_|PATH)' > /etc/environment
+env | grep -E '^(CANARY_|R2_|BACKUP_TZ|BACKUP_RETENTION|AWS_|PATH)' > /etc/environment
 
 # Configurar crontab
 CRON_SCHEDULE="${BACKUP_CRON:-0 4 * * *}"
