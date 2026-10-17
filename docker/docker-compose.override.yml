@@ -45,6 +45,10 @@
 #    repositorio, sem rebuild.
 services:
   server:
+    ports: !override
+          - '127.0.0.1:7271:7171'
+          - '127.0.0.1:7272:7172'
+          - '127.0.0.1:7173:7173'
     volumes:
       - '../config.lua:/config-src/config.lua:ro'
       - '../data/stages.lua:/canary/data/stages.lua:ro'
