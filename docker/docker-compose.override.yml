@@ -70,6 +70,7 @@ services:
       - '../data-otservbr-global/world/otservbr-house.xml:/canary/data/world/otservbr-house.xml:rw'
       - './quickstart/myaac/market-seeder-cron.sh:/cron-src/market-seeder-cron.sh:ro'
       - './quickstart/myaac/admin-players.php:/var/www/html/admin/pages/players.php:ro'
+      - '../data/json/eventscheduler/events.json:/canary/data/json/eventscheduler/events.json:ro'
     command:
       - sh
       - -c

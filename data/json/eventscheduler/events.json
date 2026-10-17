@@ -1,31 +1,16 @@
 {
 	"events": [
 		{
-			"name": "Forge Time",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
+			"name": "Fast Training & Bestiary",
+			"startdate": "10/16/2026",
+			"enddate": "10/19/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
 			"ingame": {
-				"forgechance": 120
+				"doublebestiary": true,
+				"fastexercise": true
 			},
-			"description": "Increases the success rate of forges by 20%.",
-			"colors": {
-				"colordark": "#2b3e50",
-				"colorlight": "#3d5a73"
-			},
-			"details": {
-				"displaypriority": 5,
-				"isseasonal": 0,
-				"specialevent": 1
-			}
-		},
-		{
-			"name": "Double Bestiary",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
-			"ingame": {
-				"doublebestiary": true
-			},
-			"description": "Doubles the bestiary counter when defeating monsters.",
+			"description": "Monstros contam em dobro no Bestiary e as armas de exercicio treinam com o dobro da velocidade!",
 			"colors": {
 				"colordark": "#3a4f2a",
 				"colorlight": "#4f713a"
@@ -37,13 +22,99 @@
 			}
 		},
 		{
-			"name": "Fast Exercise",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
+			"name": "Rapid Respawn Weekend",
+			"startdate": "10/23/2026",
+			"enddate": "10/26/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
 			"ingame": {
+				"spawnrate": 150,
+				"skillrate": 125
+			},
+			"description": "Monstros renascem 50% mais rapido e avanco de skills aumentado em 25%!",
+			"colors": {
+				"colordark": "#4d2f00",
+				"colorlight": "#6e3e00"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 0,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Halloween Spooktacular",
+			"startdate": "10/30/2026",
+			"enddate": "11/02/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"lootrate": 130,
+				"bosscooldown": 75
+			},
+			"description": "Especial de Halloween com +30% de Loot e tempo de espera de bosses reduzido em 25%!",
+			"colors": {
+				"colordark": "#4c3300",
+				"colorlight": "#8a5800"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 1,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Forge & Bosstiary Weekend",
+			"startdate": "11/06/2026",
+			"enddate": "11/09/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"forgechance": 110,
+				"doublebosstiary": true
+			},
+			"description": "Taxa de sucesso da Forja aumentada em 10% e contagem de bosses no Bosstiary em dobro!",
+			"colors": {
+				"colordark": "#2b3e50",
+				"colorlight": "#3d5a73"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 0,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Bonus XP Weekend",
+			"startdate": "11/13/2026",
+			"enddate": "11/16/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"exprate": 150
+			},
+			"description": "Bonus de +50% de experiencia ao derrotar monstros durante o fim de semana!",
+			"colors": {
+				"colordark": "#234d00",
+				"colorlight": "#3a7500"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 0,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Bestiary & Fast Exercise",
+			"startdate": "11/20/2026",
+			"enddate": "11/23/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"doublebestiary": true,
 				"fastexercise": true
 			},
-			"description": "Exercise weapons are faster, doubling their speed.",
+			"description": "Progresso de Bestiary dobrado e exercicios de armas duas vezes mais ageis!",
 			"colors": {
 				"colordark": "#5a3a2a",
 				"colorlight": "#7b4f3a"
@@ -55,106 +126,41 @@
 			}
 		},
 		{
-			"name": "50% Loot Bonus",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
+			"name": "Black Friday Weekend",
+			"startdate": "11/27/2026",
+			"enddate": "11/30/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
 			"ingame": {
-				"lootrate": 150
+				"lootrate": 130,
+				"forgechance": 115,
+				"fastexercise": true
 			},
-			"description": "Increases loot by 50%.",
+			"description": "Fim de semana Black Friday: +30% de Loot, +15% na Forja e treino rapido!",
 			"colors": {
-				"colordark": "#2b1e10",
-				"colorlight": "#4a2e18"
+				"colordark": "#1c1c1c",
+				"colorlight": "#3a3a3a"
 			},
 			"details": {
-				"displaypriority": 6,
-				"isseasonal": 0,
-				"specialevent": 1
-			}
-		},
-		{
-			"name": "50% Exp Bonus",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
-			"ingame": {
-				"exprate": 150
-			},
-			"description": "Increases experience by 50%.",
-			"colors": {
-				"colordark": "#234d00",
-				"colorlight": "#3a7500"
-			},
-			"details": {
-				"displaypriority": 6,
-				"isseasonal": 0,
-				"specialevent": 1
-			}
-		},
-		{
-			"name": "Boss Cooldown Reduction",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
-			"ingame": {
-				"bosscooldown": 150
-			},
-			"description": "Reduces boss cooldown time by 50%.",
-			"colors": {
-				"colordark": "#2d3c5a",
-				"colorlight": "#4a5f7d"
-			},
-			"details": {
-				"displaypriority": 6,
-				"isseasonal": 0,
-				"specialevent": 1
-			}
-		},
-		{
-			"name": "Double Exp",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
-			"ingame": {
-				"exprate": 200
-			},
-			"description": "Double experience when hunting monsters.",
-			"colors": {
-				"colordark": "#002d00",
-				"colorlight": "#004400"
-			},
-			"details": {
-				"displaypriority": 6,
+				"displaypriority": 5,
 				"isseasonal": 1,
 				"specialevent": 1
 			}
 		},
 		{
-			"name": "Double Loot",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
+			"name": "Rapid Respawn & Skill Boost",
+			"startdate": "12/04/2026",
+			"enddate": "12/07/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
 			"ingame": {
-				"lootrate": 200
+				"spawnrate": 150,
+				"skillrate": 125
 			},
-			"description": "Doubles the amount of loot obtained from monsters.",
+			"description": "Monstros reaparecem 50% mais rapido e skills progridem 25% mais velozes!",
 			"colors": {
-				"colordark": "#2a1d00",
-				"colorlight": "#4c3300"
-			},
-			"details": {
-				"displaypriority": 6,
-				"isseasonal": 1,
-				"specialevent": 1
-			}
-		},
-		{
-			"name": "Double Bosstiary",
-			"startdate": "11/12/2024",
-			"enddate": "11/17/2024",
-			"ingame": {
-				"doublebosstiary": true
-			},
-			"description": "Doubles the bestiary counter for bosses.",
-			"colors": {
-				"colordark": "#3a005a",
-				"colorlight": "#4e0075"
+				"colordark": "#4d2f00",
+				"colorlight": "#6e3e00"
 			},
 			"details": {
 				"displaypriority": 5,
@@ -163,16 +169,191 @@
 			}
 		},
 		{
-			"name": "Fast Respawn",
-			"startdate": "11/01/2024",
-			"enddate": "11/15/2024",
+			"name": "Boss Rush Weekend",
+			"startdate": "12/11/2026",
+			"enddate": "12/14/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
 			"ingame": {
-				"spawnrate": 200
+				"bosscooldown": 80,
+				"bosslootrate": 130
 			},
-			"description": "Monsters respawn twice as fast.",
+			"description": "Cooldown de bosses reduzido em 20% e bônus de +30% no loot de bosses!",
+			"colors": {
+				"colordark": "#2d3c5a",
+				"colorlight": "#4a5f7d"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 0,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Pre-Christmas Bonus XP",
+			"startdate": "12/18/2026",
+			"enddate": "12/21/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"exprate": 130
+			},
+			"description": "Aquecimento de Natal com bonus de +30% de experiencia para todos!",
+			"colors": {
+				"colordark": "#004400",
+				"colorlight": "#006600"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 1,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Christmas Celebration",
+			"startdate": "12/24/2026",
+			"enddate": "12/27/2026",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"exprate": 200,
+				"lootrate": 200,
+				"doublebestiary": true
+			},
+			"description": "Grande celebracao de Natal: Double XP, Double Loot e Bestiary em dobro!",
+			"colors": {
+				"colordark": "#7a0000",
+				"colorlight": "#aa0000"
+			},
+			"details": {
+				"displaypriority": 6,
+				"isseasonal": 1,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "New Year Extravaganza",
+			"startdate": "12/31/2026",
+			"enddate": "01/03/2027",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"exprate": 200,
+				"lootrate": 150,
+				"skillrate": 150
+			},
+			"description": "Virada de ano épica: Double XP, +50% de Loot e avanço de Skills 50% mais veloz!",
+			"colors": {
+				"colordark": "#735D10",
+				"colorlight": "#B8860B"
+			},
+			"details": {
+				"displaypriority": 6,
+				"isseasonal": 1,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Rapid Respawn & Loot Boost",
+			"startdate": "01/08/2027",
+			"enddate": "01/11/2027",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"spawnrate": 150,
+				"lootrate": 125
+			},
+			"description": "Monstros renascem 50% mais rápido com bônus de 25% no loot!",
 			"colors": {
 				"colordark": "#4d2f00",
 				"colorlight": "#6e3e00"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 0,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Forge & Fast Training",
+			"startdate": "01/15/2027",
+			"enddate": "01/18/2027",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"forgechance": 110,
+				"fastexercise": true
+			},
+			"description": "Final de semana de treino: +10% na Forja e armas de treino 2x mais rápidas!",
+			"colors": {
+				"colordark": "#2b3e50",
+				"colorlight": "#3d5a73"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 0,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Double Bestiary & Bosstiary",
+			"startdate": "01/22/2027",
+			"enddate": "01/25/2027",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"doublebestiary": true,
+				"doublebosstiary": true
+			},
+			"description": "Complete suas entradas do Bestiary e Bosstiary com progresso dobrado em todas as criaturas e bosses!",
+			"colors": {
+				"colordark": "#4e0075",
+				"colorlight": "#7b1fa2"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 0,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Boss Rush & Forge Fever",
+			"startdate": "01/29/2027",
+			"enddate": "02/01/2027",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"bosscooldown": 80,
+				"bosslootrate": 130,
+				"forgechance": 110
+			},
+			"description": "Cooldown de bosses reduzido em 20%, +30% Boss Loot e bônus de 10% na Forja!",
+			"colors": {
+				"colordark": "#2d3c5a",
+				"colorlight": "#4a5f7d"
+			},
+			"details": {
+				"displaypriority": 5,
+				"isseasonal": 0,
+				"specialevent": 1
+			}
+		},
+		{
+			"name": "Carnival Madness",
+			"startdate": "02/05/2027",
+			"enddate": "02/10/2027",
+			"starthour": "00:00:00",
+			"endhour": "23:59:59",
+			"ingame": {
+				"exprate": 200,
+				"lootrate": 200,
+				"spawnrate": 200,
+				"fastexercise": true
+			},
+			"description": "Feriadão de Carnaval: Double XP, Double Loot, Respawn acelerado (2x) e Dummy ultra rápida!",
+			"colors": {
+				"colordark": "#800080",
+				"colorlight": "#ba55d3"
 			},
 			"details": {
 				"displaypriority": 6,
