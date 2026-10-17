@@ -44,7 +44,7 @@ experienceStages = {
 	},
 	{
 		minlevel = 401,
-		multiplier = 2,
+		multiplier = 1.5,
 	},
 }
 
@@ -91,7 +91,7 @@ skillsStages = {
 	},
 	{
 		minlevel = 401,
-		multiplier = 2,
+		multiplier = 1.5,
 	},
 }
 
@@ -138,6 +138,6 @@ magicLevelStages = {
 	},
 	{
 		minlevel = 401,
-		multiplier = 2,
+		multiplier = 1.5,
 	},
 }

@@ -56,6 +56,8 @@ services:
       - '../data/scripts/globalevents/myaac_item_delivery.lua:/canary/data/scripts/globalevents/myaac_item_delivery.lua:ro'
       # Teletransporte de jogadores online/offline pelo painel admin do MyAAC.
       - '../data/scripts/globalevents/myaac_player_teleport.lua:/canary/data/scripts/globalevents/myaac_player_teleport.lua:ro'
+      # Kit inicial por vocação (inclui vocações promovidas via getBaseId).
+      - '../data/scripts/creaturescripts/player/send_first_items.lua:/canary/data/scripts/creaturescripts/player/send_first_items.lua:ro'
     entrypoint:
       - /bin/sh
       - -c

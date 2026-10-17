@@ -104,7 +104,8 @@ local config = {
 local sendFirstItems = CreatureEvent("SendFirstItems")
 
 function sendFirstItems.onLogin(player)
-	local targetVocation = config[player:getVocation():getId()]
+	local vocation = player:getVocation()
+	local targetVocation = config[vocation:getId()] or config[vocation:getBaseId()]
 	if not targetVocation or player:getLastLoginSaved() ~= 0 then
 		return true
 	end
