@@ -1,3 +1,0 @@
-[submodule "docker/quickstart/myaac"]
-	path = docker/quickstart/myaac
-	url = git@github.com:Peter99py/myaac.git
